@@ -1,18 +1,30 @@
-import { MK_BOOL, MK_NULL, MK_NUM } from './runtime/values.ts';
 import Parser from './frontend/parser.ts';
 import Environment from './runtime/env.ts';
 import { evaluate } from './runtime/interpeter.ts';
 
-repl();
+const file = Deno.env.get('File');
+console.log(file)
+
+if(file != ""){
+    run(`${file}`);
+} else {
+    repl();
+}
+
+async function run(path: string){
+    if(!file?.endsWith(".ss")) throw "file is not a .ss skyscript file";
+    const parser = new Parser();
+    const env = new Environment();
+    const input = await Deno.readTextFile(path);
+    const program = parser.produceAST(input);
+    const result = evaluate(program, env);
+    console.log(result)
+}
 
 function repl(){
     let DebugMode = false;
     const parser = new Parser();
     const env = new Environment();
-    env.declareVar("x", MK_NUM(100), true);
-    env.declareVar("true", MK_BOOL(true), true);
-    env.declareVar("false", MK_BOOL(false), true);
-    env.declareVar("null", MK_NULL(), true);
     console.log("SkyScript REPL v0.0.1");
     while(true){
         const input = prompt("> ");

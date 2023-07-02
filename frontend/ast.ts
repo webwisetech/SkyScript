@@ -3,8 +3,12 @@ export type NodeType =
     | "Program" 
     | "VarDeclaration"
     // expressions
+    | "AssignmentExpr"
     | "NullLiteral"
     | "NumericLiteral" 
+    | "Property"
+    | "ObjectLiteral"
+    | "Array"
     | "Identifier" 
     | "BinaryExpression";
 
@@ -27,6 +31,12 @@ export interface VarDeclaration extends Stmt {
 // deno-lint-ignore no-empty-interface
 export interface Expression extends Stmt {}
 
+export interface AssignmentExpr extends Expression {
+    kind: "AssignmentExpr";
+    assigne: Expression;
+    value: Expression;
+}
+
 export interface BinaryExpression extends Expression {
     kind: "BinaryExpression";
     left: Expression;
@@ -42,6 +52,17 @@ export interface Identifier extends Expression {
 export interface NumericLiteral extends Expression {
     kind: "NumericLiteral";
     value: number;
+}
+
+export interface Property extends Expression {
+    kind: "Property";
+    key: string;
+    value: Expression;
+}
+
+export interface ObjectLiteral extends Expression {
+    kind: "ObjectLiteral";
+    value: Property[];
 }
 /*
     | "CallExpresion" 

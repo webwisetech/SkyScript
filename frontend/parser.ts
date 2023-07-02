@@ -1,4 +1,4 @@
-import {  Stmt, Expression, BinaryExpression, Program, NumericLiteral, Identifier, VarDeclaration } from './ast.ts';
+import {  Stmt, Expression, BinaryExpression, Program, NumericLiteral, Identifier, VarDeclaration, AssignmentExpr } from './ast.ts';
 import { Tokenize, Token, TokenType } from './lexer.ts';
 
 export default class Parser {
@@ -74,10 +74,23 @@ export default class Parser {
          } as VarDeclaration;
     this.expect(TokenType.Exclamation, "var declarations must end with exclamation marks");
     return declaration;
-}
+    }
 
     private parse_expr(): Expression {
-        return this.parse_additive_expr();
+        return this.parse_assignment_expr();
+    }
+    private parse_assignment_expr(): Expression {
+        const left = this.parse_object_expr();
+
+        if(this.at().type == TokenType.Equals){
+            this.next();
+            const value = this.parse_assignment_expr();
+            return { value: value, assigne: left, kind: "AssignmentExpr" } as AssignmentExpr;
+        }
+        return left;
+    }
+    private parse_object_expr(): Expression {
+        throw new Error("Method not implemented.");
     }
 
     private parse_additive_expr(): Expression {

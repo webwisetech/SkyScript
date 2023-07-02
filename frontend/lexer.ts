@@ -3,8 +3,12 @@ export enum TokenType {
     Identifier,
     Equals,
     Exclamation,
+    Comma, Colon,
     OpenParen, 
     CloseParen,
+    LSlash, RSlash,
+    LBracket, RBracket,
+    LBrace, RBrace,
     BinaryOperator,
     Set,
     Lock,
@@ -32,7 +36,8 @@ function isInt(src: string){
     return (c >= bounds[0] && c <= bounds[1]);
 }
 function isSkippable(str: string) {
-    return str == ' ' || str == '\n' || str == '\t'
+    return str == ' ' || str == '\n' || str == '\t' || str == `
+`
 }
 
 export function Tokenize(src: string): Token[] {
@@ -44,12 +49,28 @@ export function Tokenize(src: string): Token[] {
             tokens.push(token(sc.shift(), TokenType.OpenParen));
         } else if(sc[0] == ")"){
             tokens.push(token(sc.shift(), TokenType.CloseParen));
+        } else if(sc[0] == "/"){
+            tokens.push(token(sc.shift(), TokenType.LSlash));
+        } else if(sc[0] == "\\"){
+            tokens.push(token(sc.shift(), TokenType.RSlash));
+        } else if(sc[0] == "["){
+            tokens.push(token(sc.shift(), TokenType.LBrace));
+        } else if(sc[0] == "]"){
+            tokens.push(token(sc.shift(), TokenType.RBrace));
+        } else if(sc[0] == "{"){
+            tokens.push(token(sc.shift(), TokenType.LBracket));
+        } else if(sc[0] == "}"){
+            tokens.push(token(sc.shift(), TokenType.RBracket));
         } else if(sc[0] == "+" || sc[0] == "-" || sc[0] == "*" || sc[0] == "/"){
             tokens.push(token(sc.shift(), TokenType.BinaryOperator));
         } else if(sc[0] == "="){
             tokens.push(token(sc.shift(), TokenType.Equals));
         } else if(sc[0] == "!"){
             tokens.push(token(sc.shift(), TokenType.Exclamation));
+        } else if(sc[0] == ":"){
+            tokens.push(token(sc.shift(), TokenType.Colon));
+        } else if(sc[0] == ","){
+            tokens.push(token(sc.shift(), TokenType.Comma));
         } else {
 
             if(isInt(sc[0])){
@@ -77,6 +98,7 @@ export function Tokenize(src: string): Token[] {
                 sc.shift();
             } else {
                 console.log(`unknown char found: ${sc[0]}`);
+                console.log("exiting");
                 Deno.exit(1);
             }
         }
