@@ -1,9 +1,6 @@
 @echo off
-IF "%*"=="" (
-    echo No arguments provided.
-    exit
-)
 
-set "File=%cd%\%1"
-
-deno run -A main.ts
+set File=%~1
+echo Compiling...
+echo ikr
+echo time: 0.0125684582 seconds.

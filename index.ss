@@ -1,11 +1,10 @@
-lock a = 22/5 !
-set s = {
-    kind: 52,
-    space: {
-        omg: 5,
-        s: {
-            wow: 5,
-        },
-    },
-    a,
+set x = 2!
+lock a = {
+    s: x*2,
+    x,
 }!
+fun a.x["lol"]()<
+out("ikr")
+>!
+
+a.x.lol()!

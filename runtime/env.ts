@@ -1,12 +1,4 @@
-import { MK_BOOL, MK_NULL, RuntimeVal } from "./values.ts";
-
-export function createGlobalEnv(){
-    const env = new Environment();
-    env.declareVar("true", MK_BOOL(true), true);
-    env.declareVar("false", MK_BOOL(false), true);
-    env.declareVar("null", MK_NULL(), true);
-    return env;
-}
+import { MK_BOOL, MK_NULL, RuntimeVal, MK_NATIVE_FN } from "./values.ts";
 
 export default class Environment {
     private parent?: Environment;
@@ -58,4 +50,14 @@ export default class Environment {
 
         return this.parent.resolve(varname);
     }
+}
+
+export function createEnv(){
+    const env = new Environment();
+    env.declareVar("true", MK_BOOL(true), true);
+    env.declareVar("false", MK_BOOL(false), true);
+    env.declareVar("null", MK_NULL(), true);
+
+    env.declareVar("output", MK_NATIVE_FN((args, scope) => { return MK_NULL(); }), true);
+    return env;
 }

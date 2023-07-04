@@ -1,82 +1,86 @@
-export type NodeType = 
-    // declarations
-    | "Program" 
-    | "VarDeclaration"
-    // expressions
-    | "AssignmentExpr"
-    | "MemberExpr"
-    | "NullLiteral"
-    | "NumericLiteral" 
-    | "Property"
-    | "ObjectLiteral"
-    | "Identifier" 
-    | "BinaryExpression"
-    | "CallExpresion" 
-    | "UnaryExpression" 
-    | "FunctionDeclaration";
+// deno-lint-ignore-file no-empty-interface
+
+export type NodeType =
+	| "Program"
+	| "VarDeclaration"
+	| "FunctionDeclaration"
+	| "AssignmentExpr"
+	| "MemberExpr"
+	| "CallExpr"
+	| "Property"
+	| "ObjectLiteral"
+	| "NumericLiteral"
+	| "Identifier"
+	| "BinaryExpr";
 
 export interface Stmt {
-    kind: NodeType;
+	kind: NodeType;
 }
 
 export interface Program extends Stmt {
-    kind: "Program";
-    body: Stmt[];
+	kind: "Program";
+	body: Stmt[];
 }
 
 export interface VarDeclaration extends Stmt {
-    kind: "VarDeclaration";
-    constant: boolean,
-    identifier: string,
-    value?: Expression;
+	kind: "VarDeclaration";
+	constant: boolean;
+	identifier: string;
+	value?: Expr;
 }
 
-// deno-lint-ignore no-empty-interface
-export interface Expression extends Stmt {}
-
-export interface AssignmentExpr extends Expression {
-    kind: "AssignmentExpr";
-    assigne: Expression;
-    value: Expression;
+export interface FunctionDeclaration extends Stmt {
+	kind: "FunctionDeclaration";
+	parameters: string[];
+	name: string;
+	body: Stmt[];
 }
 
-export interface BinaryExpression extends Expression {
-    kind: "BinaryExpression";
-    left: Expression;
-    right: Expression;
-    operator: string;
+export interface Expr extends Stmt {}
+
+export interface AssignmentExpr extends Expr {
+	kind: "AssignmentExpr";
+	assigne: Expr;
+	value: Expr;
 }
 
-export interface CallExpr extends Expression {
-    kind: "CallExpr";
-    args: Expr[];
-    caller: Expr;
+export interface BinaryExpr extends Expr {
+	kind: "BinaryExpr";
+	left: Expr;
+	right: Expr;
+	operator: string;
 }
 
-export interface MemberExpr extends Expression {
-    kind: "MemberExpr";
-    object: Expression;
-    property: Expression;
-    computed: boolean;
+export interface CallExpr extends Expr {
+	kind: "CallExpr";
+	args: Expr[];
+	caller: Expr;
 }
 
-export interface Identifier extends Expression {
-    kind: "Identifier";
-    symbol: string;
+export interface MemberExpr extends Expr {
+	kind: "MemberExpr";
+	object: Expr;
+	property: Expr;
+	computed: boolean;
 }
 
-export interface NumericLiteral extends Expression {
-    kind: "NumericLiteral";
-    value: number;
+export interface Identifier extends Expr {
+	kind: "Identifier";
+	symbol: string;
 }
 
-export interface Property extends Expression {
-    kind: "Property";
-    key: string;
-    value: Expression;
+export interface NumericLiteral extends Expr {
+	kind: "NumericLiteral";
+	value: number;
 }
 
-export interface ObjectLiteral extends Expression {
-    kind: "ObjectLiteral";
-    value: Property[];
+export interface Property extends Expr {
+	kind: "Property";
+	key: string;
+	value?: Expr;
+}
+
+export interface ObjectLiteral extends Expr {
+	kind: "ObjectLiteral";
+	properties: Property[];
 }

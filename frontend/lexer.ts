@@ -1,108 +1,135 @@
 export enum TokenType {
-    Number, 
-    Identifier,
-    Equals,
-    Exclamation,
-    Comma, Colon,
-    OpenParen, 
-    CloseParen,
-    LSlash, RSlash,
-    OBracket, CBracket,
-    OBrace, CBrace,
-    BinaryOperator,
-    Set,
-    Lock,
-    EOF,
+	Number,
+	Identifier,
+	Let,
+	Const,
+	Fun,
+	BinaryOperator,
+	Equals,
+	BinaryEquals,
+	Comma,
+	Dot,
+	Colon,
+	Semicolon,
+	OpenParen,
+	CloseParen, 
+	OpenBrace, 
+	CloseBrace,
+    OpenBracket, 
+	CloseBracket, 
+	EOF,
 }
 
-const keywords: Record<string, TokenType> = {
-    "set": TokenType.Set,
-    "lock": TokenType.Lock
+const KEYWORDS: Record<string, TokenType> = {
+	let: TokenType.Let,
+	const: TokenType.Const,
+	fun: TokenType.Fun,
 };
 
 export interface Token {
-    value: string;
-    type: TokenType;
-}
-function token(value= "", type: TokenType): Token {
-return { value, type };
-}
-function isAlpha(src: string){
-    return src.toUpperCase() != src.toLowerCase();
-}
-function isInt(src: string){
-    const c = src.charCodeAt(0);
-    const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)];
-    return (c >= bounds[0] && c <= bounds[1]);
-}
-function isSkippable(str: string) {
-    return str == " " || str == "\n" || str == "\t" || str == "\r"
+	value: string;
+	type: TokenType;
 }
 
-export function Tokenize(src: string): Token[] {
-    const tokens = new Array<Token>();
-    const sc = src.split("");
+function token(value = "", type: TokenType): Token {
+	return { value, type };
+}
 
-    while(sc.length > 0){
-        if(sc[0] == "("){
-            tokens.push(token(sc.shift(), TokenType.OpenParen));
-        } else if(sc[0] == ")"){
-            tokens.push(token(sc.shift(), TokenType.CloseParen));
-        } else if(sc[0] == "/"){
-            tokens.push(token(sc.shift(), TokenType.LSlash));
-        } else if(sc[0] == "\\"){
-            tokens.push(token(sc.shift(), TokenType.RSlash));
-        } else if(sc[0] == "{"){
-            tokens.push(token(sc.shift(), TokenType.OBrace));
-        } else if(sc[0] == "}"){
-            tokens.push(token(sc.shift(), TokenType.CBrace));
-        } else if(sc[0] == "["){
-            tokens.push(token(sc.shift(), TokenType.OBracket));
-        } else if(sc[0] == "]"){
-            tokens.push(token(sc.shift(), TokenType.CBracket));
-        } else if(sc[0] == "+" || sc[0] == "-" || sc[0] == "*" || sc[0] == "/"){
-            tokens.push(token(sc.shift(), TokenType.BinaryOperator));
-        } else if(sc[0] == "="){
-            tokens.push(token(sc.shift(), TokenType.Equals));
-        } else if(sc[0] == "!"){
-            tokens.push(token(sc.shift(), TokenType.Exclamation));
-        } else if(sc[0] == ":"){
-            tokens.push(token(sc.shift(), TokenType.Colon));
-        } else if(sc[0] == ","){
-            tokens.push(token(sc.shift(), TokenType.Comma));
-        } else {
+function isalpha(src: string) {
+	return src.toUpperCase() != src.toLowerCase();
+}
 
-            if(isInt(sc[0])){
-                let num = "";
-                while(sc.length > 0 && isInt(sc[0])){
-                    num += sc.shift();
-                }
-                
-                tokens.push(token(num, TokenType.Number));
-            } else if(isAlpha(sc[0])){
-                let ident = "";
-                while(sc.length > 0 && isAlpha(sc[0])){
-                    ident += sc.shift();
-                }
+function isskippable(str: string) {
+	return str == " " || str == "\n" || str == "\t" || str == "\r";
+}
 
-                // checks
-                const res = keywords[ident];
+function isint(str: string) {
+	const c = str.charCodeAt(0);
+	const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)];
+	return c >= bounds[0] && c <= bounds[1];
+}
 
-                if(typeof res != "number"){
-                    tokens.push(token(ident, TokenType.Identifier));
-                } else {
-                    tokens.push(token(ident, res));
-                }
-            } else if(isSkippable(sc[0])){
-                sc.shift();
-            } else {
-                console.log(`unknown char found: ${sc[0]}`);
-                Deno.exit(1);
-            }
-        }
-    }
+export function tokenize(sourceCode: string): Token[] {
+	const tokens = new Array<Token>();
+	const src = sourceCode.split("");
 
-    tokens.push({ type: TokenType.EOF, value: "EndOfFile" });
+	while (src.length > 0) {
+		if (src[0] == "(") {
+			tokens.push(token(src.shift(), TokenType.OpenParen));
+		} else if (src[0] == ")") {
+			tokens.push(token(src.shift(), TokenType.CloseParen));
+		} else if (src[0] == "{") {
+			tokens.push(token(src.shift(), TokenType.OpenBrace));
+		} else if (src[0] == "}") {
+			tokens.push(token(src.shift(), TokenType.CloseBrace));
+		} else if (src[0] == "[") {
+			tokens.push(token(src.shift(), TokenType.OpenBracket));
+		} else if (src[0] == "]") {
+			tokens.push(token(src.shift(), TokenType.CloseBracket));
+		}
+		else if (
+			src[0] == "+" ||
+			src[0] == "-" ||
+			src[0] == "*" ||
+			src[0] == "/" ||
+			src[0] == "%"
+		) {
+			tokens.push(token(src.shift(), TokenType.BinaryOperator));
+		} else if(
+			src[0] == "+=" ||
+			src[0] == "-=" ||
+			src[0] == "*=" ||
+			src[0] == "/=" ||
+			src[0] == "%="
+		){
+			tokens.push(token(src.shift(), TokenType.BinaryEquals));
+		}
+		else if (src[0] == "=") {
+			tokens.push(token(src.shift(), TokenType.Equals));
+		} else if (src[0] == ";") {
+			tokens.push(token(src.shift(), TokenType.Semicolon));
+		} else if (src[0] == ":") {
+			tokens.push(token(src.shift(), TokenType.Colon));
+		} else if (src[0] == ",") {
+			tokens.push(token(src.shift(), TokenType.Comma));
+		} else if (src[0] == ".") {
+			tokens.push(token(src.shift(), TokenType.Dot));
+		} 
+		else {
+			
+			if (isint(src[0])) {
+				let num = "";
+				while (src.length > 0 && isint(src[0])) {
+					num += src.shift();
+				}
 
-    return tokens;
+				tokens.push(token(num, TokenType.Number));
+			} 
+			else if (isalpha(src[0])) {
+				let ident = "";
+				while (src.length > 0 && isalpha(src[0])) {
+					ident += src.shift();
+				}
+				const reserved = KEYWORDS[ident];
+				if (typeof reserved == "number") {
+					tokens.push(token(ident, reserved));
+				} else {
+					tokens.push(token(ident, TokenType.Identifier));
+				}
+			} else if (isskippable(src[0])) {
+				src.shift();
+			}
+			else {
+				console.error(
+					"Unreconized character found in source: ",
+					src[0].charCodeAt(0),
+					src[0]
+				);
+				Deno.exit(1);
+			}
+		}
+	}
+
+	tokens.push({ type: TokenType.EOF, value: "EndOfFile" });
+	return tokens;
 }

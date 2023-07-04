@@ -1,11 +1,10 @@
 import Parser from './frontend/parser.ts';
-import { createGlobalEnv } from './runtime/env.ts';
-import { evaluate } from './runtime/interpeter.ts';
+import { createGlobalEnv } from './runtime/environment.ts';
+import { evaluate } from './runtime/interpreter.ts';
 
 const file = Deno.env.get('File');
-console.log(file)
 
-if(file != ""){
+if(file != undefined){
     run(`${file}`);
 } else {
     repl();
@@ -25,6 +24,7 @@ function repl(){
     let DebugMode = false;
     const parser = new Parser();
     const env = createGlobalEnv();
+    console.log(env);
     console.log("SkyScript REPL v0.0.1");
     while(true){
         const input = prompt("> ");
