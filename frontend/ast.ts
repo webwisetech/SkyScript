@@ -4,13 +4,16 @@ export type NodeType =
     | "VarDeclaration"
     // expressions
     | "AssignmentExpr"
+    | "MemberExpr"
     | "NullLiteral"
     | "NumericLiteral" 
     | "Property"
     | "ObjectLiteral"
-    | "Array"
     | "Identifier" 
-    | "BinaryExpression";
+    | "BinaryExpression"
+    | "CallExpresion" 
+    | "UnaryExpression" 
+    | "FunctionDeclaration";
 
 export interface Stmt {
     kind: NodeType;
@@ -44,6 +47,19 @@ export interface BinaryExpression extends Expression {
     operator: string;
 }
 
+export interface CallExpr extends Expression {
+    kind: "CallExpr";
+    args: Expr[];
+    caller: Expr;
+}
+
+export interface MemberExpr extends Expression {
+    kind: "MemberExpr";
+    object: Expression;
+    property: Expression;
+    computed: boolean;
+}
+
 export interface Identifier extends Expression {
     kind: "Identifier";
     symbol: string;
@@ -64,8 +80,3 @@ export interface ObjectLiteral extends Expression {
     kind: "ObjectLiteral";
     value: Property[];
 }
-/*
-    | "CallExpresion" 
-    | "UnaryExpression" 
-    | "FunctionDesclarations";
-*/

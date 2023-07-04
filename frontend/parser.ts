@@ -90,7 +90,38 @@ export default class Parser {
         return left;
     }
     private parse_object_expr(): Expression {
-        throw new Error("Method not implemented.");
+        if(this.at().type !== TokenType.OBrace){
+            return this.parse_additive_expr();
+        }
+        this.next();
+        const properties = new Array<Property>();
+
+        while(this.not_eof() && this.at().type !== TokenType.CBrace){
+            const key = this.expect(TokenType.Identifier, "key not found in oject definition").value;
+
+            if(this.at().type === TokenType.Comma){
+                this.next();
+                properties.push({key: key, kind: "Property"});
+                continue;
+            } else if(this.at().type === TokenType.CBrace){
+                properties.push({key: key, kind: "Property"});
+                continue;
+            }
+
+            this.expect(TokenType.Colon, "colon not found in object definition, fix your code, mate");
+            const value = this.parse_expr();
+
+            properties.push({key, value, kind: "Property"});
+            if (this.at().type != TokenType.CloseBrace) {
+                this.expect(
+                  TokenType.Comma,
+                  "Expected comma or closing bracket following property",
+                );
+              }
+        }
+
+        this.expect(TokenType.CBrace, "Closing brace missing on an object definitiion");
+        return { kind: "ObjectLiteral", properties: properties } as ObjectLiteral;
     }
 
     private parse_additive_expr(): Expression {

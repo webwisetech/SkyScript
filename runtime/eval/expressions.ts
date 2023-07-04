@@ -51,3 +51,15 @@ export function eval_assignment(node: AssignmentExpr, env: Environment): Runtime
   const varname = (node.assigne as Identifier).symbol;
   return env.assignVar(varname, evaluate(node.value, env));
 }
+
+export function eval_object_expr(obj: ObjectLiteral, env: Environment): RuntimeVal{
+  const object = { type: "object", properties: new Map() } as ObjectVal;
+
+  for(const { key, value } of obj.properties){
+    const runtimeVal = (value==undefined) ? env.lookupVar(key) : evaluate(value);
+
+    object.properties.set(key, value);
+  }
+
+  return object;
+}

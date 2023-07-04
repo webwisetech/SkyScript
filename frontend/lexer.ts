@@ -7,8 +7,8 @@ export enum TokenType {
     OpenParen, 
     CloseParen,
     LSlash, RSlash,
-    LBracket, RBracket,
-    LBrace, RBrace,
+    OBracket, CBracket,
+    OBrace, CBrace,
     BinaryOperator,
     Set,
     Lock,
@@ -36,8 +36,7 @@ function isInt(src: string){
     return (c >= bounds[0] && c <= bounds[1]);
 }
 function isSkippable(str: string) {
-    return str == ' ' || str == '\n' || str == '\t' || str == `
-`
+    return str == " " || str == "\n" || str == "\t" || str == "\r"
 }
 
 export function Tokenize(src: string): Token[] {
@@ -53,14 +52,14 @@ export function Tokenize(src: string): Token[] {
             tokens.push(token(sc.shift(), TokenType.LSlash));
         } else if(sc[0] == "\\"){
             tokens.push(token(sc.shift(), TokenType.RSlash));
-        } else if(sc[0] == "["){
-            tokens.push(token(sc.shift(), TokenType.LBrace));
-        } else if(sc[0] == "]"){
-            tokens.push(token(sc.shift(), TokenType.RBrace));
         } else if(sc[0] == "{"){
-            tokens.push(token(sc.shift(), TokenType.LBracket));
+            tokens.push(token(sc.shift(), TokenType.OBrace));
         } else if(sc[0] == "}"){
-            tokens.push(token(sc.shift(), TokenType.RBracket));
+            tokens.push(token(sc.shift(), TokenType.CBrace));
+        } else if(sc[0] == "["){
+            tokens.push(token(sc.shift(), TokenType.OBracket));
+        } else if(sc[0] == "]"){
+            tokens.push(token(sc.shift(), TokenType.CBracket));
         } else if(sc[0] == "+" || sc[0] == "-" || sc[0] == "*" || sc[0] == "/"){
             tokens.push(token(sc.shift(), TokenType.BinaryOperator));
         } else if(sc[0] == "="){
@@ -98,7 +97,6 @@ export function Tokenize(src: string): Token[] {
                 sc.shift();
             } else {
                 console.log(`unknown char found: ${sc[0]}`);
-                console.log("exiting");
                 Deno.exit(1);
             }
         }

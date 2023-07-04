@@ -1,5 +1,5 @@
 import Parser from './frontend/parser.ts';
-import Environment from './runtime/env.ts';
+import { createGlobalEnv } from './runtime/env.ts';
 import { evaluate } from './runtime/interpeter.ts';
 
 const file = Deno.env.get('File');
@@ -14,7 +14,7 @@ if(file != ""){
 async function run(path: string){
     if(!file?.endsWith(".ss")) throw "file is not a .ss skyscript file";
     const parser = new Parser();
-    const env = new Environment();
+    const env = createGlobalEnv();
     const input = await Deno.readTextFile(path);
     const program = parser.produceAST(input);
     const result = evaluate(program, env);
@@ -24,7 +24,7 @@ async function run(path: string){
 function repl(){
     let DebugMode = false;
     const parser = new Parser();
-    const env = new Environment();
+    const env = createGlobalEnv();
     console.log("SkyScript REPL v0.0.1");
     while(true){
         const input = prompt("> ");
