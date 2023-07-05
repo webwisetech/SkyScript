@@ -1,10 +1,3 @@
-set x = 2!
-lock a = {
-    s: x*2,
-    x,
-}!
-fun a.x["lol"]()<
-out("ikr")
->!
+let x = "are u sure about that";
 
-a.x.lol()!
+out(x)

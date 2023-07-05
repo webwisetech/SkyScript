@@ -4,6 +4,7 @@ export type ValueType =
 	| "null"
 	| "number"
 	| "boolean"
+	| "string"
 	| "object"
 	| "native-fn"
 	| "function";
@@ -51,6 +52,15 @@ export function MK_NUMBER(n = 0) {
 export interface ObjectVal extends RuntimeVal {
 	type: "object";
 	properties: Map<string, RuntimeVal>;
+}
+
+export interface StringVal extends RuntimeVal {
+    type: 'string'
+    value: string
+}
+
+export function MK_STR(str: string){
+	return { type: "string", value: str } as StringVal;
 }
 
 export type FunctionCall = (args: RuntimeVal[], env: Environment) => RuntimeVal;

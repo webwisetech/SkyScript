@@ -13,6 +13,7 @@ import {
 	Stmt,
 	VarDeclaration,
 	FunctionDeclaration,
+StringLiteral,
 } from "./ast.ts";
 
 import { Token, tokenize, TokenType } from "./lexer.ts";
@@ -134,8 +135,6 @@ export default class Parser {
 		return fn;
 	}
 
-	// LET IDENT;
-	// ( LET | CONST ) IDENT = EXPR;
 	parse_var_declaration(): Stmt {
 		const isConstant = this.eat().type == TokenType.Const;
 		const identifier = this.expect(
@@ -186,9 +185,6 @@ export default class Parser {
 
 		if (this.at().type == TokenType.Equals) {
 			this.eat(); // advance past equals
-			const value = this.parse_assignment_expr();
-			return { value, assigne: left, kind: "AssignmentExpr" } as AssignmentExpr;
-		} else if (this.at().type == TokenType.BinaryEquals) {
 			const value = this.parse_assignment_expr();
 			return { value, assigne: left, kind: "AssignmentExpr" } as AssignmentExpr;
 		}
@@ -246,8 +242,9 @@ export default class Parser {
 	private parse_additive_expr(): Expr {
 		let left = this.parse_multiplicitave_expr();
 
-		while (this.at().value == "+" || this.at().value == "-") {
+		while (this.at().value == "+" || this.at().value == "-" && this.not_eof()) {
 			const operator = this.eat().value;
+
 			const right = this.parse_multiplicitave_expr();
 			left = {
 				kind: "BinaryExpr",
@@ -270,6 +267,7 @@ export default class Parser {
 			this.at().value == "%"
 		) {
 			const operator = this.eat().value;
+		
 			const right = this.parse_call_member_expr();
 			left = {
 				kind: "BinaryExpr",
@@ -394,6 +392,9 @@ export default class Parser {
 					kind: "NumericLiteral",
 					value: parseFloat(this.eat().value),
 				} as NumericLiteral;
+
+			case TokenType.String:
+				return { kind: 'StringLiteral', value: this.eat().value } as StringLiteral;
 
 			// Grouping Expressions
 			case TokenType.OpenParen: {

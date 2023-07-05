@@ -1,10 +1,15 @@
-import { NativeFnValue } from './values.ts';
+// deno-lint-ignore-file no-explicit-any
+import * as util from 'node:util';
 import {
+BooleanVal,
 	MK_BOOL,
 	MK_NATIVE_FN,
 	MK_NULL,
 	MK_NUMBER,
+	NullVal,
+	NumberVal,
 	RuntimeVal,
+StringVal,
 } from "./values.ts";
 
 export function createGlobalEnv() {
@@ -14,13 +19,36 @@ export function createGlobalEnv() {
 	env.declareVar("false", MK_BOOL(false), true);
 	env.declareVar("null", MK_NULL(), true);
 
-	function print(args: RuntimeVal[], _scope: Environment) {
-		const answer = console.log(...args);
-		return answer;
-	}
+	function println(this: any, args: RuntimeVal[], _scope: Environment){
+        // deno-lint-ignore prefer-const
+        let log: any[] = []
+
+        for (const arg of args) {
+            switch (arg.type) {
+                case 'number':
+                    log.push(((arg as NumberVal).value))
+                    continue
+                case 'string':
+                    log.push((arg as StringVal).value)
+                    continue
+                case 'boolean':
+                    log.push(((arg as BooleanVal).value))
+                    continue
+                case 'null':
+                    log.push(((arg as NullVal).value))
+                    continue
+                default:
+                    log.push(arg)
+            }
+        }
+
+        console.log(util.format.apply(this, log))
+
+        return { type: 'null', value: null } as NullVal; 
+    }
 	env.declareVar(
-		"print",
-		MK_NATIVE_FN(print),
+		"out",
+		MK_NATIVE_FN(println),
 		true
 	);
 

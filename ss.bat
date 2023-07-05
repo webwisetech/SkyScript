@@ -1,6 +1,9 @@
 @echo off
 
-set File=%~1
-echo Compiling...
-echo ikr
-echo time: 0.0125684582 seconds.
+set File=
+
+if not "%~1"=="" (
+  set "File=%cd%\%~1"
+)
+
+    deno run -A main.ts

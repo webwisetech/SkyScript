@@ -4,9 +4,9 @@ export enum TokenType {
 	Let,
 	Const,
 	Fun,
+	String,
 	BinaryOperator,
 	Equals,
-	BinaryEquals,
 	Comma,
 	Dot,
 	Colon,
@@ -75,14 +75,6 @@ export function tokenize(sourceCode: string): Token[] {
 			src[0] == "%"
 		) {
 			tokens.push(token(src.shift(), TokenType.BinaryOperator));
-		} else if(
-			src[0] == "+=" ||
-			src[0] == "-=" ||
-			src[0] == "*=" ||
-			src[0] == "/=" ||
-			src[0] == "%="
-		){
-			tokens.push(token(src.shift(), TokenType.BinaryEquals));
 		}
 		else if (src[0] == "=") {
 			tokens.push(token(src.shift(), TokenType.Equals));
@@ -94,7 +86,17 @@ export function tokenize(sourceCode: string): Token[] {
 			tokens.push(token(src.shift(), TokenType.Comma));
 		} else if (src[0] == ".") {
 			tokens.push(token(src.shift(), TokenType.Dot));
-		} 
+		} else if (['"', '\''].includes(src[0])) {
+            src.shift()
+            let string = ''
+
+            while (src.length > 1 && src[0] != '"') {
+                string += src.shift()
+            }
+
+            src.shift()
+            tokens.push(token(string, TokenType.String))
+        }
 		else {
 			
 			if (isint(src[0])) {
