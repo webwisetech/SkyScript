@@ -1,12 +1,13 @@
 export enum TokenType {
 	Number,
 	Identifier,
-	Let,
-	Const,
+	Set,
+	Lock,
 	Fun,
 	String,
 	BinaryOperator,
 	Equals,
+	BinaryEquals,
 	Comma,
 	Dot,
 	Colon,
@@ -21,8 +22,8 @@ export enum TokenType {
 }
 
 const KEYWORDS: Record<string, TokenType> = {
-	let: TokenType.Let,
-	const: TokenType.Const,
+	set: TokenType.Set,
+	lock: TokenType.Lock,
 	fun: TokenType.Fun,
 };
 

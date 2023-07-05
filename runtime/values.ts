@@ -9,14 +9,17 @@ export type ValueType =
 	| "native-fn"
 	| "function";
 
-export interface RuntimeVal {
+// deno-lint-ignore no-empty-interface
+export interface RuntimeVal {}
+
+export interface Runtime extends RuntimeVal{
 	type: ValueType;
 }
 
 /**
  * Defines a value of undefined meaning
  */
-export interface NullVal extends RuntimeVal {
+export interface NullVal extends Runtime {
 	type: "null";
 	value: null;
 }
@@ -25,7 +28,7 @@ export function MK_NULL() {
 	return { type: "null", value: null } as NullVal;
 }
 
-export interface BooleanVal extends RuntimeVal {
+export interface BooleanVal extends Runtime {
 	type: "boolean";
 	value: boolean;
 }
@@ -37,7 +40,7 @@ export function MK_BOOL(b = true) {
 /**
  * Runtime value that has access to the raw native javascript number.
  */
-export interface NumberVal extends RuntimeVal {
+export interface NumberVal extends Runtime {
 	type: "number";
 	value: number;
 }
@@ -49,12 +52,12 @@ export function MK_NUMBER(n = 0) {
 /**
  * Runtime value that has access to the raw native javascript number.
  */
-export interface ObjectVal extends RuntimeVal {
+export interface ObjectVal extends Runtime {
 	type: "object";
-	properties: Map<string, RuntimeVal>;
+	properties: Map<string, Runtime>;
 }
 
-export interface StringVal extends RuntimeVal {
+export interface StringVal extends Runtime {
     type: 'string'
     value: string
 }
@@ -63,9 +66,9 @@ export function MK_STR(str: string){
 	return { type: "string", value: str } as StringVal;
 }
 
-export type FunctionCall = (args: RuntimeVal[], env: Environment) => RuntimeVal;
+export type FunctionCall = (args: Runtime[], env: Environment) => Runtime;
 
-export interface NativeFnValue extends RuntimeVal {
+export interface NativeFnValue extends Runtime {
 	type: "native-fn";
 	call: FunctionCall;
 }
@@ -73,7 +76,7 @@ export function MK_NATIVE_FN(call: FunctionCall) {
 	return { type: "native-fn", call } as NativeFnValue;
 }
 
-export interface FunctionValue extends RuntimeVal {
+export interface FunctionValue extends Runtime {
 	type: "function";
 	name: string;
 	parameters: string[];

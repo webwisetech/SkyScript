@@ -1,4 +1,4 @@
-import { NumberVal, RuntimeVal, StringVal } from "./values.ts";
+import { NumberVal, Runtime, StringVal } from "./values.ts";
 import {
 	AssignmentExpr,
 	BinaryExpr,
@@ -26,7 +26,7 @@ import {
 	eval_object_expr,
 } from "./eval/expressions.ts";
 
-export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
+export function evaluate(astNode: Stmt, env: Environment): Runtime {
 	switch (astNode.kind) {
 		case "NumericLiteral":
 			return {

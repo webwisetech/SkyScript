@@ -79,8 +79,8 @@ export default class Parser {
 	private parse_stmt(): Stmt {
 		// skip to parse_expr
 		switch (this.at().type) {
-			case TokenType.Let:
-			case TokenType.Const:
+			case TokenType.Set:
+			case TokenType.Lock:
 				return this.parse_var_declaration();
 			case TokenType.Fun:
 				return this.parse_fn_declaration();
@@ -136,7 +136,7 @@ export default class Parser {
 	}
 
 	parse_var_declaration(): Stmt {
-		const isConstant = this.eat().type == TokenType.Const;
+		const isConstant = this.eat().type == TokenType.Lock;
 		const identifier = this.expect(
 			TokenType.Identifier,
 			"Expected identifier name following let | const keywords."

@@ -1,68 +1,17 @@
-// deno-lint-ignore-file no-explicit-any
-import * as util from 'node:util';
-import {
-BooleanVal,
-	MK_BOOL,
-	MK_NATIVE_FN,
-	MK_NULL,
-	MK_NUMBER,
-	NullVal,
-	NumberVal,
-	RuntimeVal,
-StringVal,
-} from "./values.ts";
+import { Runtime } from "./values.ts";
+import { stdfun } from "./std/functions.ts";
+import { stdvar } from "./std/variables.ts";
 
 export function createGlobalEnv() {
 	const env = new Environment();
-	// Create Default Global Enviornment
-	env.declareVar("true", MK_BOOL(true), true);
-	env.declareVar("false", MK_BOOL(false), true);
-	env.declareVar("null", MK_NULL(), true);
-
-	function println(this: any, args: RuntimeVal[], _scope: Environment){
-        // deno-lint-ignore prefer-const
-        let log: any[] = []
-
-        for (const arg of args) {
-            switch (arg.type) {
-                case 'number':
-                    log.push(((arg as NumberVal).value))
-                    continue
-                case 'string':
-                    log.push((arg as StringVal).value)
-                    continue
-                case 'boolean':
-                    log.push(((arg as BooleanVal).value))
-                    continue
-                case 'null':
-                    log.push(((arg as NullVal).value))
-                    continue
-                default:
-                    log.push(arg)
-            }
-        }
-
-        console.log(util.format.apply(this, log))
-
-        return { type: 'null', value: null } as NullVal; 
-    }
-	env.declareVar(
-		"out",
-		MK_NATIVE_FN(println),
-		true
-	);
-
-	function timeFunction(_args: RuntimeVal[], _env: Environment) {
-		return MK_NUMBER(Date.now());
-	}
-	env.declareVar("time", MK_NATIVE_FN(timeFunction), true);
-
+	stdfun(env);
+	stdvar(env);
 	return env;
 }
 
 export default class Environment {
 	private parent?: Environment;
-	private variables: Map<string, RuntimeVal>;
+	private variables: Map<string, Runtime>;
 	private constants: Set<string>;
 
 	constructor(parentENV?: Environment) {
@@ -73,9 +22,9 @@ export default class Environment {
 
 	public declareVar(
 		varname: string,
-		value: RuntimeVal,
+		value: Runtime,
 		constant: boolean
-	): RuntimeVal {
+	): Runtime {
 		if (this.variables.has(varname)) {
 			throw `Cannot declare variable ${varname}. As it already is defined.`;
 		}
@@ -87,7 +36,7 @@ export default class Environment {
 		return value;
 	}
 
-	public assignVar(varname: string, value: RuntimeVal): RuntimeVal {
+	public assignVar(varname: string, value: Runtime): Runtime {
 		const env = this.resolve(varname);
 
 		// Cannot assign to constant
@@ -99,9 +48,9 @@ export default class Environment {
 		return value;
 	}
 
-	public lookupVar(varname: string): RuntimeVal {
+	public lookupVar(varname: string): Runtime {
 		const env = this.resolve(varname);
-		return env.variables.get(varname) as RuntimeVal;
+		return env.variables.get(varname) as Runtime;
 	}
 
 	public resolve(varname: string): Environment {

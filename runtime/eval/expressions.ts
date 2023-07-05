@@ -13,7 +13,7 @@ import {
 	NativeFnValue,
 	NumberVal,
 	ObjectVal,
-	RuntimeVal,
+	Runtime,
 } from "../values.ts";
 
 function eval_numeric_binary_expr(
@@ -44,7 +44,7 @@ function eval_numeric_binary_expr(
 export function eval_binary_expr(
 	binop: BinaryExpr,
 	env: Environment
-): RuntimeVal {
+): Runtime {
 	const lhs = evaluate(binop.left, env);
 	const rhs = evaluate(binop.right, env);
 
@@ -64,7 +64,7 @@ export function eval_binary_expr(
 export function eval_identifier(
 	ident: Identifier,
 	env: Environment
-): RuntimeVal {
+): Runtime {
 	const val = env.lookupVar(ident.symbol);
 	return val;
 }
@@ -72,7 +72,7 @@ export function eval_identifier(
 export function eval_assignment(
 	node: AssignmentExpr,
 	env: Environment
-): RuntimeVal {
+): Runtime {
 	if (node.assigne.kind !== "Identifier") {
 		throw `Invalid LHS inaide assignment expr ${JSON.stringify(node.assigne)}`;
 	}
@@ -84,19 +84,19 @@ export function eval_assignment(
 export function eval_object_expr(
 	obj: ObjectLiteral,
 	env: Environment
-): RuntimeVal {
+): Runtime {
 	const object = { type: "object", properties: new Map() } as ObjectVal;
 	for (const { key, value } of obj.properties) {
-		const runtimeVal =
+		const Runtime =
 			value == undefined ? env.lookupVar(key) : evaluate(value, env);
 
-		object.properties.set(key, runtimeVal);
+		object.properties.set(key, Runtime);
 	}
 
 	return object;
 }
 
-export function eval_call_expr(expr: CallExpr, env: Environment): RuntimeVal {
+export function eval_call_expr(expr: CallExpr, env: Environment): Runtime {
 	const args = expr.args.map((arg) => evaluate(arg, env));
 	const fn = evaluate(expr.caller, env);
 
@@ -117,7 +117,7 @@ export function eval_call_expr(expr: CallExpr, env: Environment): RuntimeVal {
 			scope.declareVar(varname, args[i], false);
 		}
 
-		let result: RuntimeVal = MK_NULL();
+		let result: Runtime = MK_NULL();
 		// Evaluate the function body line by line
 		for (const stmt of func.body) {
 			result = evaluate(stmt, scope);
