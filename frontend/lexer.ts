@@ -73,49 +73,126 @@ export function tokenize(sourceCode: string): Token[] {
 	const src = sourceCode.split("");
 
 	while (src.length > 0) {
-		if (src[0] == "(") {
+		let sc = src[0];
+	switch(src[0]){
+		case "(":
 			tokens.push(token(src.shift(), TokenType.OpenParen));
-		} else if (src[0] == ")") {
+		break;
+		case ")":
 			tokens.push(token(src.shift(), TokenType.CloseParen));
-		} else if (src[0] == "{") {
+		break;
+		case "{":
 			tokens.push(token(src.shift(), TokenType.OpenBrace));
-		} else if (src[0] == "}") {
+		break;
+		case "}":
 			tokens.push(token(src.shift(), TokenType.CloseBrace));
-		} else if (src[0] == "[") {
+		break;
+		case "[":
 			tokens.push(token(src.shift(), TokenType.OpenBracket));
-		} else if (src[0] == "]") {
+		break;
+		case "]":
 			tokens.push(token(src.shift(), TokenType.CloseBracket));
-		} else if(src[0] == ">"){
-			tokens.push(token(src.shift(), TokenType.GreaterThanSign));
-		}
-		else if (["+", "-", "*", "/", "%"].includes(src[0])) {
-			tokens.push(token(src.shift(), TokenType.BinaryOperator));
-		}
-		else if (src[0] == "=") {
-			if(src[1] == "="){
-				src.shift();
-				src.shift();
-				tokens.push(token("==", TokenType.DoubleEquals));
-			} else {
-				tokens.push(token(src.shift(), TokenType.Equals));
+		break;
+		case "+":
+			switch(src[1]){
+				case "+":
+					src.shift();
+					tokens.push(token(src.shift() + "+", TokenType.BinaryOperator));
+				break;
+				case "=":
+					tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
+					src.shift();
+				break;
+				default:
+					tokens.push(token(src.shift(), TokenType.BinaryOperator));
+				break;
+			} 
+		break;
+		case "-":
+			switch(src[1]){
+				case "-":
+					src.shift();
+					tokens.push(token(src.shift() + "-", TokenType.BinaryOperator));
+				break;
+				case "=":
+					tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
+					src.shift();
+				break;
+				default: 
+					tokens.push(token(src.shift(), TokenType.BinaryOperator));
+				break;
+			} 
+		break;
+		case "*":
+			switch(src[1]){
+				case "=":
+					tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
+					src.shift();
+				break;
+				default:
+					tokens.push(token(src.shift(), TokenType.BinaryOperator));
+				break;
 			}
-			
-		} else if (src[0] == '!') {
-            if (src[1] == '=') {
-                src.shift();
-                src.shift();
-                tokens.push(token('!=', TokenType.NotEquals));
+		break;
+		case "/":
+			switch(src[1]){
+				case "=":
+					tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
+					src.shift();
+				break;
+				default:
+					tokens.push(token(src.shift(), TokenType.BinaryOperator));
+				break;
+			}
+		break;
+		case "%":
+			switch(src[1]){
+				case "=":
+					tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
+					src.shift();
+				break;
+				default:
+					tokens.push(token(src.shift(), TokenType.BinaryOperator));
+				break;
+			}
+		break;
+		case "=":
+			switch(src[1]){
+				case "=":
+					src.shift();
+					src.shift();
+					tokens.push(token("==", TokenType.BinaryOperator));
+				break;
+				default:
+					tokens.push(token(src.shift(), TokenType.Equals));
+				break;
+			}
+		break;
+		case "!":
+			switch(src[1]) {
+				case "=":
+					src.shift();
+                	src.shift();
+                	tokens.push(token('!=', TokenType.NotEquals));
+				break;
+				default: break;
             }
-		} else if (src[0] == ";") {
+		break;
+		case ";":
 			tokens.push(token(src.shift(), TokenType.Semicolon));
-		} else if (src[0] == ":") {
+		break;
+		case ":":
 			tokens.push(token(src.shift(), TokenType.Colon));
-		} else if (src[0] == ",") {
+		break;
+		case ",":
 			tokens.push(token(src.shift(), TokenType.Comma));
-		} else if (src[0] == ".") {
+		break;
+		case ".":
 			tokens.push(token(src.shift(), TokenType.Dot));
-		} else if (['"', '\''].includes(src[0])) {
-            src.shift()
+		break;
+		case '"':
+		case "'":{
+				src.shift()
             let string = ''
 
             while (src.length > 1 && src[0] != '"') {
@@ -124,39 +201,31 @@ export function tokenize(sourceCode: string): Token[] {
 
             src.shift()
             tokens.push(token(string, TokenType.String))
-        } else if ("+-/*%".includes(src[0])) {
-			if (src[0] == "+" && src[1] == "+") {
-				src.shift();
-				tokens.push(token(src.shift() + "+", TokenType.BinaryOperator));
-			} else if (src[0] == "-" && src[1] == "-") {
-				src.shift();
-				tokens.push(token(src.shift() + "-", TokenType.BinaryOperator));
-			} else if (src[1] == "=") {
-				tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
-				src.shift();
-			} else if (src[0] == ">" && src[1] == ">") {
-				let current = src[0];
-                // It's a comment. Don't add any tokens until we reach a newline.
-                while (src.length > 0 && current != "\n" && current != "\r") {
-                    src.shift()
-					current = src[0];
-                }
-			} else {
-				tokens.push(token(src.shift(), TokenType.BinaryOperator));
+			} break;
+		case ">": {
+			switch(src[1]){
+				case ">":
+					while (src.length > 0 && sc != "\r" && sc != "\n") {
+						src.shift();
+						sc = src[0];
+					}
+				break;
+				default: break;
 			}
-		}
-		else {
-			
-			if (isint(src[0])) {
-				let num = "";
-				while (src.length > 0 && isint(src[0])) {
-					num += src.shift();
-				}
-
-				tokens.push(token(num, TokenType.Number));
-			} 
-			else if (isalpha(src[0])) {
-				let ident = "";
+		} break;
+		default: {
+			let a: string;
+			if (isint(src[0])) { a = "int"} else if (isalpha(src[0])) { a = "alpha" } else if (isskippable(src[0])) { a = "skippable"} else { a = "other" }
+			switch(a){
+				case "int": {
+					let num = "";
+					while (src.length > 0 && isint(src[0])) {
+						num += src.shift();
+					}
+					tokens.push(token(num, TokenType.Number));
+				} break;
+				case "alpha": {
+					let ident = "";
 				while (src.length > 0 && isalpha(src[0])) {
 					ident += src.shift();
 				}
@@ -165,19 +234,22 @@ export function tokenize(sourceCode: string): Token[] {
 					tokens.push(token(ident, reserved));
 				} else {
 					tokens.push(token(ident, TokenType.Identifier));
-				}
-			} else if (isskippable(src[0])) {
-				src.shift();
+				} 
+				} break;
+				case "skippable":
+					src.shift(); 
+				break;
+				default:
+					console.error(
+						"Unreconized character found in source: ",
+						src[0].charCodeAt(0),
+						src[0]
+					);
+					Deno.exit(1);
+				break;
 			}
-			else {
-				console.error(
-					"Unreconized character found in source: ",
-					src[0].charCodeAt(0),
-					src[0]
-				);
-				Deno.exit(1);
-			}
-		}
+		} break;
+	}
 	}
 
 	tokens.push({ type: TokenType.EOF, value: "EndOfFile" });
