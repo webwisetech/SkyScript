@@ -3,20 +3,24 @@
 import { TokenType } from "./lexer.ts";
 
 export type NodeType =
+    // statements
 	| "Program"
 	| "VarDeclaration"
+	| "Property"
+	| "IfStmt"
+	| "Identifier"
 	| "FunctionDeclaration"
+	// expressions
+	| "EqualityExpr"
+	| "BinaryExpr"
 	| "AssignmentExpr"
 	| "MemberExpr"
 	| "CallExpr"
-	| "Property"
+	// literals
 	| "ObjectLiteral"
-	| "EqualityExpr"
-	| "IfStmt"
+	| "ArrayLiteral"
 	| "NumericLiteral"
-	| "StringLiteral"
-	| "Identifier"
-	| "BinaryExpr";
+	| "StringLiteral";
 
 export interface Stmt {
 	kind: NodeType;
@@ -96,6 +100,11 @@ export interface Property extends Expr {
 export interface ObjectLiteral extends Expr {
 	kind: "ObjectLiteral";
 	properties: Property[];
+}
+
+export interface ArrayLiteral extends Expr {
+	kind: "ArrayLiteral";
+	elements: Expr[];
 }
 
 export interface StringLiteral extends Expr {

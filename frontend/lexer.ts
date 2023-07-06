@@ -1,11 +1,6 @@
 export enum TokenType {
 	Number,
 	Identifier,
-	Set,
-	Lock,
-	Fun,
-	If,
-	Else,
 	String,
 	BinaryOperator,
 	Equals,
@@ -21,7 +16,19 @@ export enum TokenType {
 	OpenBrace, 
 	CloseBrace,
     OpenBracket, 
-	CloseBracket, 
+	CloseBracket,
+	GreaterThanSign,
+	// keywords 
+	Set,
+	Lock,
+	Fun,
+	If,
+	Else,
+	While,
+	For,
+	Return,
+	Break,
+	Async,
 	EOF,
 }
 
@@ -30,7 +37,12 @@ const KEYWORDS: Record<string, TokenType> = {
 	lock: TokenType.Lock,
 	fun: TokenType.Fun,
 	if: TokenType.If,
-	else: TokenType.Else
+	else: TokenType.Else,
+	for: TokenType.For,
+	while: TokenType.While,
+	return: TokenType.Return,
+	break: TokenType.Break,
+	async: TokenType.Async
 };
 
 export interface Token {
@@ -73,14 +85,10 @@ export function tokenize(sourceCode: string): Token[] {
 			tokens.push(token(src.shift(), TokenType.OpenBracket));
 		} else if (src[0] == "]") {
 			tokens.push(token(src.shift(), TokenType.CloseBracket));
+		} else if(src[0] == ">"){
+			tokens.push(token(src.shift(), TokenType.GreaterThanSign));
 		}
-		else if (
-			src[0] == "+" ||
-			src[0] == "-" ||
-			src[0] == "*" ||
-			src[0] == "/" ||
-			src[0] == "%"
-		) {
+		else if (["+", "-", "*", "/", "%"].includes(src[0])) {
 			tokens.push(token(src.shift(), TokenType.BinaryOperator));
 		}
 		else if (src[0] == "=") {
@@ -116,7 +124,27 @@ export function tokenize(sourceCode: string): Token[] {
 
             src.shift()
             tokens.push(token(string, TokenType.String))
-        }
+        } else if ("+-/*%".includes(src[0])) {
+			if (src[0] == "+" && src[1] == "+") {
+				src.shift();
+				tokens.push(token(src.shift() + "+", TokenType.BinaryOperator));
+			} else if (src[0] == "-" && src[1] == "-") {
+				src.shift();
+				tokens.push(token(src.shift() + "-", TokenType.BinaryOperator));
+			} else if (src[1] == "=") {
+				tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
+				src.shift();
+			} else if (src[0] == ">" && src[1] == ">") {
+				let current = src[0];
+                // It's a comment. Don't add any tokens until we reach a newline.
+                while (src.length > 0 && current != "\n" && current != "\r") {
+                    src.shift()
+					current = src[0];
+                }
+			} else {
+				tokens.push(token(src.shift(), TokenType.BinaryOperator));
+			}
+		}
 		else {
 			
 			if (isint(src[0])) {

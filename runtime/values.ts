@@ -5,6 +5,7 @@ export type ValueType =
 	| "number"
 	| "boolean"
 	| "string"
+	| "array"
 	| "object"
 	| "native-fn"
 	| "function";
@@ -82,4 +83,9 @@ export interface FunctionValue extends Runtime {
 	parameters: string[];
 	declarationEnv: Environment;
 	body: Stmt[];
+}
+
+export interface ArrayVal extends Runtime {
+	type: "array";
+	elements: Runtime[];
 }
