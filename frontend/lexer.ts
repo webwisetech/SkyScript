@@ -161,7 +161,7 @@ export function tokenize(sourceCode: string): Token[] {
 				case "=":
 					src.shift();
 					src.shift();
-					tokens.push(token("==", TokenType.BinaryOperator));
+					tokens.push(token("==", TokenType.DoubleEquals));
 				break;
 				default:
 					tokens.push(token(src.shift(), TokenType.Equals));
