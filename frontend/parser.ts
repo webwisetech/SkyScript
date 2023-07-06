@@ -1,4 +1,4 @@
-// deno-lint-ignore-file no-explicit-any
+// deno-lint-ignore-file no-explicit-any prefer-const
 import {
 	AssignmentExpr,
 	BinaryExpr,
@@ -14,6 +14,7 @@ import {
 	VarDeclaration,
 	FunctionDeclaration,
 StringLiteral,
+IfStmt,
 } from "./ast.ts";
 
 import { Token, tokenize, TokenType } from "./lexer.ts";
@@ -84,10 +85,57 @@ export default class Parser {
 				return this.parse_var_declaration();
 			case TokenType.Fun:
 				return this.parse_fn_declaration();
+			case TokenType.If:
+				return this.parse_if_stmt();
 			default:
 				return this.parse_expr();
 		}
 	}
+
+	private parse_if_stmt(): IfStmt {
+        this.expect(TokenType.If, 'Expected "if" keyword.');
+        const conditional = this.parse_expr();
+        const consequent: Stmt[] = [];
+        let right: Expr = {} as Expr;
+        let operator: TokenType = TokenType.BinaryEquals;
+
+        this.expect(TokenType.OpenBrace, 'Expected opening brace for consequent block.');
+
+        while (this.at().type !== TokenType.EOF && this.at().type !== TokenType.CloseBrace) {
+            consequent.push(this.parse_stmt());
+        }
+      
+        this.expect(TokenType.CloseBrace, 'Expected closing brace for consequent block.');
+      
+        let alternate: Stmt[] | undefined = undefined;
+      
+        if (this.at().type === TokenType.Else) {
+          this.eat();
+      
+          if (this.at().type === TokenType.If) {
+            alternate = [this.parse_if_stmt()];
+          } else {
+            alternate = [];
+      
+            this.expect(TokenType.OpenBrace, 'Expected opening brace for alternate block.');
+      
+            while (this.at().type !== TokenType.EOF && this.at().type !== TokenType.CloseBrace) {
+              alternate.push(this.parse_stmt())
+            }
+      
+            this.expect(TokenType.CloseBrace, 'Expected closing brace for alternate block.');
+          }
+        }
+      
+        return {
+          kind: 'IfStmt',
+          conditional,
+          operator,
+          right,
+          consequent,
+          alternate,
+        } as IfStmt
+      }
 
 	private parse_fn_declaration(): Stmt {
 		this.eat(); // eat fn keyword

@@ -1,5 +1,7 @@
 // deno-lint-ignore-file no-empty-interface
 
+import { TokenType } from "./lexer.ts";
+
 export type NodeType =
 	| "Program"
 	| "VarDeclaration"
@@ -9,6 +11,8 @@ export type NodeType =
 	| "CallExpr"
 	| "Property"
 	| "ObjectLiteral"
+	| "EqualityExpr"
+	| "IfStmt"
 	| "NumericLiteral"
 	| "StringLiteral"
 	| "Identifier"
@@ -35,6 +39,14 @@ export interface FunctionDeclaration extends Stmt {
 	parameters: string[];
 	name: string;
 	body: Stmt[];
+}
+
+export interface IfStmt extends Stmt {
+    kind: 'IfStmt';
+    conditional: Expr;
+    operator: TokenType;
+    consequent: Stmt[];
+    alternate?: Stmt[];
 }
 
 export interface Expr extends Stmt {}
@@ -87,6 +99,13 @@ export interface ObjectLiteral extends Expr {
 }
 
 export interface StringLiteral extends Expr {
-    kind: 'StringLiteral'
-    value: string
+    kind: 'StringLiteral';
+    value: string;
+}
+
+export interface EqualityExpr extends Expr {
+    kind: 'EqualityExpr';
+    left: Expr;
+    right: Expr;
+    operator: TokenType;
 }

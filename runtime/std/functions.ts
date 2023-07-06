@@ -3,10 +3,12 @@ import Environment from "../environment.ts";
 import { Runtime, MK_NUMBER, NullVal, NumberVal, BooleanVal, StringVal, MK_NATIVE_FN } from "../values.ts";
 import * as util from 'node:util';
 
-export function timeFunction(_args: Runtime[], _env: Environment) {
+function timeFunction(_args: Runtime[], _env: Environment) {
     return MK_NUMBER(Date.now());
 }
-export function exit(args: Runtime[], _scope: Environment) {
+
+
+function exit(args: Runtime[], _scope: Environment) {
     if (args[0] == undefined || args[0].type != 'number') {
         console.log(`Process exited with exit code: 1`)
         Deno.exit(1)
@@ -20,10 +22,7 @@ export function exit(args: Runtime[], _scope: Environment) {
 
     return { type: 'null', value: null } as NullVal;
 }
-export function println(this: any, args: Runtime[], _scope: Environment){
-    // deno-lint-ignore prefer-const
-    let wow = true;
-    if(wow){
+function println(this: any, args: Runtime[], _scope: Environment){
     // deno-lint-ignore prefer-const
     let log: any[] = []
 
@@ -47,7 +46,7 @@ export function println(this: any, args: Runtime[], _scope: Environment){
     }
 
     console.log(util.format.apply(this, log))
-}
+
     return {} as Runtime; 
 }
 

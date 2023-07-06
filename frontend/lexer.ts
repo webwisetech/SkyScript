@@ -4,10 +4,14 @@ export enum TokenType {
 	Set,
 	Lock,
 	Fun,
+	If,
+	Else,
 	String,
 	BinaryOperator,
 	Equals,
 	BinaryEquals,
+	DoubleEquals,
+	NotEquals,
 	Comma,
 	Dot,
 	Colon,
@@ -25,6 +29,8 @@ const KEYWORDS: Record<string, TokenType> = {
 	set: TokenType.Set,
 	lock: TokenType.Lock,
 	fun: TokenType.Fun,
+	if: TokenType.If,
+	else: TokenType.Else
 };
 
 export interface Token {
@@ -78,7 +84,20 @@ export function tokenize(sourceCode: string): Token[] {
 			tokens.push(token(src.shift(), TokenType.BinaryOperator));
 		}
 		else if (src[0] == "=") {
-			tokens.push(token(src.shift(), TokenType.Equals));
+			if(src[1] == "="){
+				src.shift();
+				src.shift();
+				tokens.push(token("==", TokenType.DoubleEquals));
+			} else {
+				tokens.push(token(src.shift(), TokenType.Equals));
+			}
+			
+		} else if (src[0] == '!') {
+            if (src[1] == '=') {
+                src.shift();
+                src.shift();
+                tokens.push(token('!=', TokenType.NotEquals));
+            }
 		} else if (src[0] == ";") {
 			tokens.push(token(src.shift(), TokenType.Semicolon));
 		} else if (src[0] == ":") {

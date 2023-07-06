@@ -1,11 +1,12 @@
 import {
 	FunctionDeclaration,
+	IfStmt,
 	Program,
 	VarDeclaration,
 } from "../../frontend/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { FunctionValue, MK_NULL, Runtime } from "../values.ts";
+import { BooleanVal, FunctionValue, MK_NULL, NullVal, Runtime } from "../values.ts";
 
 export function eval_program(program: Program, env: Environment): Runtime {
 	let lastEvaluated: Runtime = MK_NULL();
@@ -40,4 +41,76 @@ export function eval_function_declaration(
 	} as FunctionValue;
 
 	return env.declareVar(declaration.name, fn, true);
+}
+
+export function eval_if_stmt(statement: IfStmt, env: Environment): Runtime {
+    const conditional: Runtime = evaluate(statement.conditional, env)
+
+    if (conditional.type == 'boolean') {
+        const result = (conditional as BooleanVal)
+        const runtimeVal = result as Runtime
+        if (isTruthy(runtimeVal)) {
+            if (Array.isArray(statement.consequent)) {
+                // Evaluate each statement in the consequent array
+                for (const consequentStatement of statement.consequent) {
+                  evaluate(consequentStatement, env);
+                }
+            } else {
+                // Evaluate the single consequent statement
+                return evaluate(statement.consequent, env);
+            }
+        } else {
+            if (statement.alternate) {
+                if (Array.isArray(statement.alternate)) {
+                    // Evaluate each statement in the alternate array
+                    for (const alternateStatement of statement.alternate) {
+                      evaluate(alternateStatement, env);
+                    }
+                } else {
+                    // Evaluate the single alternate statement
+                    return evaluate(statement.alternate, env);
+                }
+            }
+        }
+    } else {
+        if (isTruthy(conditional)) {
+            if (Array.isArray(statement.consequent)) {
+              // Evaluate each statement in the consequent array
+              for (const consequentStatement of statement.consequent) {
+                evaluate(consequentStatement, env);
+              }
+            } else {
+              // Evaluate the single consequent statement
+              return evaluate(statement.consequent, env);
+            }
+        } else {
+            if (statement.alternate) {
+                if (Array.isArray(statement.alternate)) {
+                    // Evaluate each statement in the alternate array
+                    for (const alternateStatement of statement.alternate) {
+                      evaluate(alternateStatement, env);
+                    }
+                } else {
+                    // Evaluate the single alternate statement
+                    return evaluate(statement.alternate, env);
+                }
+            }
+        }
+    }
+      
+    return { type: 'null', value: null } as NullVal
+}
+
+function isTruthy(conditional: Runtime) {
+    if (conditional.type == 'boolean') {
+        const bool = (conditional as BooleanVal).value
+        if (bool) return true
+        else return false
+    }
+
+    if (conditional) {
+        return true
+    } else {
+        return false
+    }
 }
