@@ -30,7 +30,7 @@ import {
 	eval_object_expr,
 } from "./eval/expressions.ts";
 
-export function evaluate(astNode: Stmt, env: Environment): Runtime {
+export function evaluate(astNode: Stmt, env: Environment): Runtime | StringVal {
 	switch (astNode.kind) {
 		case "NumericLiteral":
 			return {

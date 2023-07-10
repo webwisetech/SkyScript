@@ -67,7 +67,7 @@ export function MK_STR(str: string){
 	return { type: "string", value: str } as StringVal;
 }
 
-export type FunctionCall = (args: Runtime[], env: Environment) => Runtime;
+export type FunctionCall = (args: Runtime[], env: Environment) => Runtime | StringVal;
 
 export interface NativeFnValue extends Runtime {
 	type: "native-fn";

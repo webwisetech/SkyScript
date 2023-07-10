@@ -106,7 +106,7 @@ export function eval_call_expr(expr: CallExpr, env: Environment): Runtime {
 	const fn = evaluate(expr.caller, env);
 
 	if (fn.type == "native-fn") {
-		const result = (fn as NativeFnValue).call(args, env);
+		const result: StringVal | Runtime = (fn as NativeFnValue).call(args, env);
 		return result;
 	}
 
@@ -123,7 +123,6 @@ export function eval_call_expr(expr: CallExpr, env: Environment): Runtime {
 		}
 
 		let result: Runtime = MK_NULL();
-		// Evaluate the function body line by line
 		for (const stmt of func.body) {
 			result = evaluate(stmt, scope);
 		}

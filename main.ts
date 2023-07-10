@@ -5,12 +5,12 @@ import { evaluate } from './runtime/interpreter.ts';
 const file = Deno.env.get('File');
 
 if(file != undefined){
-    run(`${file}`);
+   run(`${file}`);
 } else {
     repl();
 }
 
-async function run(path: string){
+export async function run(path: string){
     if(!file?.endsWith(".ss")) throw "file is not a .ss skyscript file";
     const parser = new Parser();
     const env = createGlobalEnv();
@@ -24,8 +24,7 @@ function repl(){
     let DebugMode = false;
     const parser = new Parser();
     const env = createGlobalEnv();
-    console.log(env);
-    console.log("SkyScript REPL v0.0.1");
+    console.log("SkyScript REPL v0.0.2-a");
     while(true){
         const input = prompt("> ");
 
