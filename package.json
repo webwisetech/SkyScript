@@ -8,8 +8,5 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@nut-tree/nut-js": "^3.1.2"
-  }
+  "license": "ISC"
 }
