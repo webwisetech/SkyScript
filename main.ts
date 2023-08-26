@@ -3,12 +3,18 @@ import { createGlobalEnv } from './runtime/environment.ts';
 import { evaluate } from './runtime/interpreter.ts';
 import * as nodepath from "https://deno.land/std@0.110.0/node/path/posix.ts";
 import * as denopath from "https://deno.land/std@0.188.0/path/mod.ts";
+import _colors from 'npm:colors';
 
 const __filename = denopath.fromFileUrl(import.meta.url);
 // Without trailing slash
 const __dirname = denopath.dirname(denopath.fromFileUrl(import.meta.url))
 
 const file = Deno.args[0];
+
+if(file === "-v" || file === "--version"){
+    console.log("Sky"+_colors.blue("Script"), "is on version: 0.0.4-a")
+    Deno.exit(0)
+}
 
 if(file != undefined){
    runmain(`${file}`);
@@ -43,9 +49,9 @@ function repl(){
     let DebugMode = false;
     const parser = new Parser();
     const env = createGlobalEnv();
-    console.log("SkyScript REPL v0.0.3-a");
+    console.log("Sky"+_colors.blue("Script"), "REPL v0.0.4-a");
     while(true){
-        const input = prompt("> ");
+        const input = prompt(_colors.green("> "));
 
         if(!input){
             continue

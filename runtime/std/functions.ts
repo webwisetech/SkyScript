@@ -4,6 +4,7 @@ import Environment from "../environment.ts";
 import { Runtime, MK_NUMBER, NullVal, NumberVal, BooleanVal, StringVal, ObjectVal,MK_NATIVE_FN, MK_NULL } from "../values.ts";
 import * as util from 'node:util'; // https://deno.land/std@0.110.0/node/util.ts
 import { execSync } from 'https://deno.land/std@0.177.1/node/child_process.ts';
+import colors from 'npm:colors';
 function timeFunction(_args: Runtime[], _env: Environment) {
     return MK_NUMBER(Date.now());
 }
@@ -54,6 +55,22 @@ function exit(args: Runtime[], _scope: Environment) {
 
     return MK_NULL();
 }
+
+function blue(args: Runtime[], _scope: Environment){
+    const a = colors.blue((args[0] as unknown) as string)
+    return { type: "string", value: a } as StringVal;
+}
+
+function red(args: Runtime[], _scope: Environment){
+    const a = colors.red((args[0] as unknown) as string)
+    return { type: "string", value: a } as StringVal;
+}
+
+function green(args: Runtime[], _scope: Environment){
+    const a = colors.green((args[0] as unknown) as string)
+    return { type: "string", value: a } as StringVal;
+}
+
 export function println(this: any, args: Runtime[], scope: Environment){
     if(scope.simple != true) return MK_NULL();
     // deno-lint-ignore prefer-const
@@ -77,8 +94,7 @@ export function println(this: any, args: Runtime[], scope: Environment){
                 log.push(arg)
         }
     }
-
-    console.log(util.format.apply(this, log))
+        console.log(util.format.apply(this, log))
 
     return MK_NULL();
 }
@@ -146,6 +162,10 @@ export function stdfun(env: Environment){
     env.declareVar("wait", MK_NATIVE_FN(wait), true);
     env.declareVar("ask", MK_NATIVE_FN(ask), true);
     env.declareVar("mode", MK_NATIVE_FN(envMode), true);
+    // colors
+    env.declareVar("blue", MK_NATIVE_FN(blue), true);
+    env.declareVar("green", MK_NATIVE_FN(green), true);
+    env.declareVar("red", MK_NATIVE_FN(red), true);
     // other std funcs
     env.declareVar("nnei", MK_NATIVE_FN(nnei), true);
     env.declareVar("YellowCat98", MK_NATIVE_FN(YellowCat98), true);

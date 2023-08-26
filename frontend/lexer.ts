@@ -11,13 +11,14 @@ export enum TokenType {
 	Dot,
 	Colon,
 	Semicolon,
-	OpenParen,
+	OpenParen, 
 	CloseParen, 
 	OpenBrace, 
 	CloseBrace,
     OpenBracket, 
 	CloseBracket,
 	GreaterThanSign,
+	Slash,
 	// keywords 
 	Set,
 	Lock,
@@ -65,7 +66,7 @@ function isalpha(src: string) {
 }
 
 function isskippable(str: string) {
-	return str == " " || str == "\n" || str == "\t" || str == "\r" || str == ";";
+	return str == " " || str == "\n" || str == "\t" || str == "\r" || str == ";" || str == "/";
 }
 
 function isint(str: string) {
@@ -144,6 +145,10 @@ export function tokenize(sourceCode: string): Token[] {
 			switch(src[1]){
 				case "=":
 					tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
+					src.shift();
+				break;
+				case "/":
+					tokens.push(token(src.shift()+'/', TokenType.Slash));
 					src.shift();
 				break;
 				default:

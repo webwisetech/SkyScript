@@ -81,6 +81,8 @@ export default class Parser {
 	private parse_stmt(): Stmt {
 		// skip to parse_expr
 		switch (this.at().type) {
+			case TokenType.Slash:
+				return this.parse_comments();
 			case TokenType.Set:
 			case TokenType.Lock:
 				return this.parse_var_declaration();
@@ -91,6 +93,14 @@ export default class Parser {
 			default:
 				return this.parse_expr();
 		}
+	}
+
+	private parse_comments(): Stmt {
+		this.eat()
+		while(this.eat().type != TokenType.Slash && this.not_eof()){
+			continue;
+		}
+		return { kind: 'NumericLiteral', value: 0 } as NumericLiteral;
 	}
 
 	private parse_if_stmt(): IfStmt {
@@ -194,7 +204,7 @@ export default class Parser {
 		if (this.at().type == TokenType.Semicolon) {
 			this.eat(); // expect semicolon
 			if (isConstant) {
-				throw "Must assigne value to constant expression. No value provided.";
+				throw "Must assign a value to constant expression. No value provided.";
 			}
 
 			return {
@@ -215,11 +225,6 @@ export default class Parser {
 			identifier,
 			constant: isConstant,
 		} as VarDeclaration;
-
-		this.expect(
-			TokenType.Semicolon,
-			"Variable declaration statment must end with semicolon."
-		);
 
 		return declaration;
 	}
@@ -411,6 +416,8 @@ export default class Parser {
 		const tk = this.at().type;
 
 		switch (tk) {
+			case TokenType.Slash:
+				return { kind: "NumericLiteral", value: 0 } as NumericLiteral;
 			case TokenType.Identifier:
 				return { kind: "Identifier", symbol: this.eat().value } as Identifier;
 
