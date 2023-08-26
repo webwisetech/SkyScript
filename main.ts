@@ -12,8 +12,8 @@ const __dirname = denopath.dirname(denopath.fromFileUrl(import.meta.url))
 const file = Deno.args[0];
 
 if(file === "-v" || file === "--version"){
-    console.log("Sky"+_colors.blue("Script"), "is on version: 0.0.4-a")
-    Deno.exit(0)
+    console.log("Sky"+_colors.blue("Script"), "is on version: 0.0.4-a");
+    Deno.exit(0);
 }
 
 if(file != undefined){
