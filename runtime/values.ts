@@ -8,7 +8,8 @@ export type ValueType =
 	| "array"
 	| "object"
 	| "native-fn"
-	| "function";
+	| "function"
+	| "while";
 
 // deno-lint-ignore no-empty-interface
 export interface RuntimeVal {}

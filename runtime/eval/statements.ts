@@ -6,7 +6,7 @@ import {
 } from "../../frontend/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { BooleanVal, FunctionValue, MK_NULL, NullVal, Runtime } from "../values.ts";
+import { BooleanVal, FunctionValue, MK_NULL, Runtime } from "../values.ts";
 
 export function eval_program(program: Program, env: Environment): Runtime {
 	let lastEvaluated: Runtime = MK_NULL();
@@ -98,7 +98,7 @@ export function eval_if_stmt(statement: IfStmt, env: Environment): Runtime {
         }
     }
       
-    return { type: 'null', value: null } as NullVal
+    return MK_NULL();
 }
 
 function isTruthy(conditional: Runtime) {

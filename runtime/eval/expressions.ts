@@ -4,6 +4,7 @@ import {
 	CallExpr,
 	EqualityExpr,
 	Identifier,
+	MemberExpr,
 	ObjectLiteral,
 } from "../../frontend/ast.ts";
 import { TokenType } from "../../frontend/lexer.ts";
@@ -157,6 +158,24 @@ export function evaluateBinaryExpression (binop: BinaryExpr, env: Environment): 
 
     // One or both are NULL
     return { type: 'null', value: null } as NullVal;
+}
+
+export function eval_member_expr(expression: MemberExpr, env: Environment): Runtime {
+    const object = evaluate(expression.object, env)
+    const property = (expression.property as Identifier).symbol
+  
+    if (object.type === 'object') {
+        const objValue = object as ObjectVal
+        const propertyValue = objValue.properties.get(property)
+        
+        if (propertyValue !== undefined) {
+            return propertyValue
+        } else {
+            throw `Property "${property}" does not exist on object.`;
+      }
+    } else {
+        throw 'Cannot access property on non-object value.';
+    }
 }
 
 export function eval_equality_expr(expression: EqualityExpr, env: Environment): Runtime {

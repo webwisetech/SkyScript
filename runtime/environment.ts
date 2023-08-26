@@ -11,6 +11,7 @@ export function createGlobalEnv() {
 
 export default class Environment {
 	private parent?: Environment;
+	public simple?: boolean;
 	private variables: Map<string, Runtime>;
 	private constants: Set<string>;
 
@@ -18,6 +19,7 @@ export default class Environment {
 		this.parent = parentENV;
 		this.variables = new Map();
 		this.constants = new Set();
+		this.simple = true;
 	}
 
 	public declareVar(
