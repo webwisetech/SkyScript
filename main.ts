@@ -6,7 +6,6 @@ import * as denopath from "https://deno.land/std@0.188.0/path/mod.ts";
 import _colors from 'npm:colors';
 
 const __filename = denopath.fromFileUrl(import.meta.url);
-// Without trailing slash
 const __dirname = denopath.dirname(denopath.fromFileUrl(import.meta.url))
 
 const file = Deno.args[0];
