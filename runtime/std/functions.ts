@@ -1,10 +1,11 @@
 // deno-lint-ignore-file no-explicit-any
 import { run } from "../../main.ts";
 import Environment from "../environment.ts";
-import { Runtime, MK_NUMBER, NullVal, NumberVal, BooleanVal, StringVal, ObjectVal,MK_NATIVE_FN, MK_NULL } from "../values.ts";
+import { Runtime, MK_NUMBER, NullVal, NumberVal, BooleanVal, StringVal, ObjectVal,MK_NATIVE_FN, MK_NULL, FunctionValue } from "../values.ts";
 import * as util from 'node:util'; // https://deno.land/std@0.110.0/node/util.ts
 import { execSync } from 'https://deno.land/std@0.177.1/node/child_process.ts';
 import colors from 'npm:colors';
+import { evaluate } from "../interpreter.ts";
 function timeFunction(_args: Runtime[], _env: Environment) {
     return MK_NUMBER(Date.now());
 }
@@ -68,6 +69,21 @@ function red(args: Runtime[], _scope: Environment){
 
 function green(args: Runtime[], _scope: Environment){
     const a = colors.green((args[0] as unknown) as string)
+    return { type: "string", value: a } as StringVal;
+}
+
+function yellow(args: Runtime[], _scope: Environment){
+    const a = colors.yellow((args[0] as unknown) as string)
+    return { type: "string", value: a } as StringVal;
+}
+
+function cyan(args: Runtime[], _scope: Environment){
+    const a = colors.cyan((args[0] as unknown) as string)
+    return { type: "string", value: a } as StringVal;
+}
+
+function magenta(args: Runtime[], _scope: Environment){
+    const a = colors.magenta((args[0] as unknown) as string)
     return { type: "string", value: a } as StringVal;
 }
 
@@ -139,6 +155,20 @@ function envMode(args: Runtime[], scope: Environment){
     }
     return MK_NULL();
 }
+function loop(args: Runtime[], scope: Environment){
+    //if(!(args[1] as FunctionValue).body) throw "no function found in call";
+    if((args[0] as NumberVal).value < 1) throw "minimum loop amouns shouldn't be under 1";
+		const env = new Environment(scope);
+
+		let result: Runtime = MK_NULL();
+		for(let i = 0; i < (args[0] as NumberVal).value; i++){
+            for (const stmt of (args[1] as FunctionValue).body) {
+			result = evaluate(stmt, env);
+		}
+    }
+
+		return result;
+}
 
 function wait(args: Runtime[], _scope: Environment){
     const value = (args[0] as NumberVal).value;
@@ -162,10 +192,14 @@ export function stdfun(env: Environment){
     env.declareVar("wait", MK_NATIVE_FN(wait), true);
     env.declareVar("ask", MK_NATIVE_FN(ask), true);
     env.declareVar("mode", MK_NATIVE_FN(envMode), true);
+    env.declareVar("loop", MK_NATIVE_FN(loop), true);
     // colors
     env.declareVar("blue", MK_NATIVE_FN(blue), true);
     env.declareVar("green", MK_NATIVE_FN(green), true);
     env.declareVar("red", MK_NATIVE_FN(red), true);
+    env.declareVar("yellow", MK_NATIVE_FN(yellow), true);
+    env.declareVar("cyan", MK_NATIVE_FN(cyan), true);
+    env.declareVar("magenta", MK_NATIVE_FN(magenta), true);
     // other std funcs
     env.declareVar("nnei", MK_NATIVE_FN(nnei), true);
     env.declareVar("YellowCat98", MK_NATIVE_FN(YellowCat98), true);

@@ -90,9 +90,3 @@ export interface ArrayVal extends Runtime {
 	type: "array";
 	elements: Runtime[];
 }
-
-export interface WhileVal extends Runtime {
-	type: "while";
-	expression: Stmt[];
-	code: FunctionValue;
-}

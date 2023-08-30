@@ -8,6 +8,7 @@ export type NodeType =
 	| "VarDeclaration"
 	| "Property"
 	| "IfStmt"
+	| "WhileStmt"
 	| "Identifier"
 	| "FunctionDeclaration"
 	// expressions
@@ -51,6 +52,15 @@ export interface IfStmt extends Stmt {
     operator: TokenType;
     consequent: Stmt[];
     alternate?: Stmt[];
+}
+
+export interface WhileStmt extends Stmt {
+	kind: "WhileStmt";
+	conditional: Expr;
+    operator: TokenType;
+    consequent: Stmt[];
+    alternate?: Stmt[];
+	Function: CallExpr;
 }
 
 export interface Expr extends Stmt {}

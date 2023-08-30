@@ -11,7 +11,7 @@ const __dirname = denopath.dirname(denopath.fromFileUrl(import.meta.url))
 const file = Deno.args[0];
 
 if(file === "-v" || file === "--version"){
-    console.log("Sky"+_colors.blue("Script"), "is on version: 0.0.4-a");
+    console.log("Sky"+_colors.cyan("Script"), "is on version: 0.0.4-a");
     Deno.exit(0);
 }
 
@@ -48,18 +48,18 @@ function repl(){
     let DebugMode = false;
     const parser = new Parser();
     const env = createGlobalEnv();
-    console.log("Sky"+_colors.blue("Script"), "REPL v0.0.4-a");
+    console.log("Sky"+_colors.cyan("Script"), "REPL v0.0.4-a");
     while(true){
         const input = prompt(_colors.green("> "));
 
         if(!input){
             continue
         }else if(input == "/exit"){
-            console.log("exiting");
+            console.log(_colors.red("exiting"));
             Deno.exit(1);
         } else if(input == "/debug"){
             DebugMode = !DebugMode;
-            console.log("Toggled Debug mode!");
+            console.log(_colors.yellow("Toggled Debug mode!"));
         } else if(input == "/help"){
             console.log("All commands: \n- /exit: exit the repl\n- /debug: enable debug mode\n- /help: shows this menu")
         }else{

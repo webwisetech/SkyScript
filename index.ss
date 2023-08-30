@@ -1,0 +1,4 @@
+
+mode("advanced")
+mode("simple")
+
