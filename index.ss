@@ -1,4 +1,0 @@
-
-mode("advanced")
-mode("simple")
-

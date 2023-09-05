@@ -18,6 +18,8 @@ IfStmt,
 EqualityExpr,
 } from "./ast.ts";
 
+//import db from '../runtime/localDB/quickdb.ts';
+
 import { Token, tokenize, TokenType } from "./lexer.ts";
 
 /**
@@ -81,6 +83,8 @@ export default class Parser {
 	private parse_stmt(): Stmt {
 		// skip to parse_expr
 		switch (this.at().type) {
+			case TokenType.Using:
+				return this.parse_using_modules();
 			case TokenType.Slash:
 				return this.parse_comments();
 			case TokenType.Set:
@@ -95,6 +99,21 @@ export default class Parser {
 		}
 	}
 
+	/*private async addModule(module: string): Promise<void>{
+		type modules = "discord.ss" | "colors.ss";
+		const mods = await db.get("modules") as modules[] | [] as modules[];
+		if(!["discord.ss", "colors.ss"].includes(module)) throw "are you sure you didn't forget something?";
+		mods.push(module as never);
+		await db.set("modules", mods);
+	}*/
+
+	private parse_using_modules(): Stmt{
+		this.eat()
+		const b = this.expect(TokenType.String, "No module found after the using keyword");
+		/*this.addModule(b.value);*/
+		
+		return { kind: "NumericLiteral", value: 0 } as NumericLiteral;
+	}
 	private parse_comments(): Stmt {
 		this.eat()
 		while(this.eat().type != TokenType.Slash && this.not_eof()){

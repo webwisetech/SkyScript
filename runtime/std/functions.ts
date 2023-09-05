@@ -6,6 +6,7 @@ import * as util from 'node:util'; // https://deno.land/std@0.110.0/node/util.ts
 import { execSync } from 'https://deno.land/std@0.177.1/node/child_process.ts';
 import colors from 'npm:colors';
 import { evaluate } from "../interpreter.ts";
+import { Client } from 'npm:discord.js';
 function timeFunction(_args: Runtime[], _env: Environment) {
     return MK_NUMBER(Date.now());
 }
@@ -179,6 +180,19 @@ function ask(args: Runtime[] | string[], _scope: Environment){
     const data = prompt(args[0] as string);
     return { type: 'string', value: data } as StringVal;
 }
+function CreateBot(args: Runtime[], scope: Environment){
+    const Token = { type: "string", value: (args.shift() as unknown) as string } as StringVal;
+    const Status = { type: 'string', value: (args.shift() as unknown) as string } as StringVal;
+    scope.declareVar("DiscordBotToken", Token, true);
+    scope.declareVar("DiscordBotStatus", Status, true);
+    const client = new Client({ intents: ["Guilds"] });
+    client.login(Token.value);
+    client.on("ready", () => {
+        console.log("[SSLOGS] Logged in as "+client.user?.username);
+        client.user?.setActivity(Status.value);
+    })
+    return MK_NULL();
+}
 const map = new Map<string, Runtime>();
 
 map.set("out", MK_NATIVE_FN(print))
@@ -205,6 +219,7 @@ export function stdfun(env: Environment){
     env.declareVar("YellowCat98", MK_NATIVE_FN(YellowCat98), true);
     env.declareVar("nebula", MK_NATIVE_FN(nebula), true);
     env.declareVar("pikala", MK_NATIVE_FN(pikala), true);
+    env.declareVar("bot", MK_NATIVE_FN(CreateBot), true)
     env.declareVar("system", {
 		type: "object",
 		properties: map

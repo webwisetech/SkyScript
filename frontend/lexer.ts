@@ -33,6 +33,7 @@ export enum TokenType {
 	From,
 	Take,
 	Give,
+	Using,
 	EOF,
 }
 
@@ -49,7 +50,8 @@ const KEYWORDS: Record<string, TokenType> = {
 	async: TokenType.Async, // not implemented
 	take: TokenType.Take, // not implemented - similar to "import" in typescript
 	from: TokenType.From, // not implemented - similar to "from" in typescript
-	give: TokenType.Give // not implemented - similar to "export" in typescript
+	give: TokenType.Give, // not implemented - similar to "export" in typescript
+	using: TokenType.Using
 };
 
 export interface Token {

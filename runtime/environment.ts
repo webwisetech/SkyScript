@@ -13,12 +13,14 @@ export default class Environment {
 	private parent?: Environment;
 	public simple?: boolean;
 	private variables: Map<string, Runtime>;
+	public commands: Map<string, Runtime>;
 	private constants: Set<string>;
 
 	constructor(parentENV?: Environment) {
 		this.parent = parentENV;
 		this.variables = new Map();
 		this.constants = new Set();
+		this.commands = new Map();
 		this.simple = true;
 	}
 

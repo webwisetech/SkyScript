@@ -9,7 +9,8 @@ export type ValueType =
 	| "object"
 	| "native-fn"
 	| "function"
-	| "while";
+	| "while"
+	| "command";
 
 // deno-lint-ignore no-empty-interface
 export interface RuntimeVal {}
@@ -84,6 +85,12 @@ export interface FunctionValue extends Runtime {
 	parameters: string[];
 	declarationEnv: Environment;
 	body: Stmt[];
+}
+
+export interface DiscordBotCommand extends Runtime {
+	type: "command";
+	name: string;
+	command: FunctionValue;
 }
 
 export interface ArrayVal extends Runtime {
