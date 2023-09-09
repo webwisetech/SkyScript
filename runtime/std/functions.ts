@@ -6,7 +6,10 @@ import * as util from 'node:util'; // https://deno.land/std@0.110.0/node/util.ts
 import { execSync } from 'https://deno.land/std@0.177.1/node/child_process.ts';
 import colors from 'npm:colors';
 import { evaluate } from "../interpreter.ts";
-import { Client } from 'npm:discord.js';
+import { Client, Message } from 'npm:discord.js';
+import { memory } from '../localDB/memory.ts';
+import { Stmt } from "../../frontend/ast.ts";
+
 function timeFunction(_args: Runtime[], _env: Environment) {
     return MK_NUMBER(Date.now());
 }
@@ -60,31 +63,40 @@ function exit(args: Runtime[], _scope: Environment) {
 
 function blue(args: Runtime[], _scope: Environment){
     const a = colors.blue((args[0] as unknown) as string)
+    
     return { type: "string", value: a } as StringVal;
 }
 
 function red(args: Runtime[], _scope: Environment){
     const a = colors.red((args[0] as unknown) as string)
+    
     return { type: "string", value: a } as StringVal;
 }
 
 function green(args: Runtime[], _scope: Environment){
     const a = colors.green((args[0] as unknown) as string)
+    
     return { type: "string", value: a } as StringVal;
 }
 
 function yellow(args: Runtime[], _scope: Environment){
     const a = colors.yellow((args[0] as unknown) as string)
+    
     return { type: "string", value: a } as StringVal;
 }
 
 function cyan(args: Runtime[], _scope: Environment){
+    if((args[0] as StringVal).value !== null || (args[0] as StringVal).value !== undefined){
+        const b = colors.cyan((args[0] as StringVal).value);
+        return { type: "string", value: b } as StringVal;
+    }
     const a = colors.cyan((args[0] as unknown) as string)
     return { type: "string", value: a } as StringVal;
 }
 
 function magenta(args: Runtime[], _scope: Environment){
     const a = colors.magenta((args[0] as unknown) as string)
+    
     return { type: "string", value: a } as StringVal;
 }
 
@@ -182,20 +194,78 @@ function ask(args: Runtime[] | string[], _scope: Environment){
 }
 function CreateBot(args: Runtime[], scope: Environment){
     const Token = { type: "string", value: (args.shift() as unknown) as string } as StringVal;
-    const Status = { type: 'string', value: (args.shift() as unknown) as string } as StringVal;
     scope.declareVar("DiscordBotToken", Token, true);
-    scope.declareVar("DiscordBotStatus", Status, true);
-    const client = new Client({ intents: ["Guilds"] });
+    const client: Client<true> = new Client({ intents: ["Guilds", "MessageContent", "GuildMessages", "GuildMembers"] });
     client.login(Token.value);
-    client.on("ready", () => {
-        console.log("[SSLOGS] Logged in as "+client.user?.username);
-        client.user?.setActivity(Status.value);
+    memory['client'] = client;
+    return MK_NULL();
+}
+function initready(_args: Runtime[], scope: Environment){
+    memory['client']!.on('ready', (client) => {
+        scope.declareVar("client", {
+            type: 'object',
+            properties: new Map<string, Runtime>().set("name", { type: 'string', value: client.user.username } as StringVal).set("id", { type: 'string', value: client.user.id } as StringVal).set("ping", { type: 'string', value: `${client.ws.ping}` } as StringVal)
+        } as ObjectVal, true);
+    })
+    return MK_NULL();
+}
+
+function executeFunc(func: Stmt[], scope: Environment){
+    const env = new Environment(scope);
+
+	let result: Runtime = MK_NULL();
+    for (const stmt of func) {
+		result = evaluate(stmt, env);
+	}
+    return result
+}
+
+
+function setupMsgFunc(func: Stmt[], scope: Environment, message: Message<true>){
+    const env = new Environment(scope);
+    function sendMessage(args: Runtime[], _scope: Environment){
+        if((args[0] as StringVal).value !== undefined){
+            const b = (args[0] as StringVal).value;
+            message.channel.send(b);
+            return MK_NULL();
+        }
+        message.channel.send((args[0] as unknown) as string);
+    
+        return MK_NULL();
+    }
+    env.declareVar("message", {
+        type: 'object',
+        properties: new Map<string, Runtime>().set("content", { type: 'string', value: message.content } as StringVal).set("send", MK_NATIVE_FN(sendMessage))
+    } as ObjectVal, true);
+
+	let result: Runtime = MK_NULL();
+    for (const stmt of func) {
+		result = evaluate(stmt, env);
+	}
+    return result
+}
+
+function whenMessageCreate(args: Runtime[], scope: Environment){
+    memory['client']!.on('messageCreate', (messge:Message<boolean>) => {
+        const message = messge as Message<true>;
+
+        setupMsgFunc((args[0] as FunctionValue).body, scope, message);
+    })
+    return MK_NULL();
+}
+
+function whenReady(args: Runtime[], scope: Environment){
+    memory['client']!.on("ready", () => {
+        executeFunc((args[0] as FunctionValue).body, scope);
     })
     return MK_NULL();
 }
 const map = new Map<string, Runtime>();
-
 map.set("out", MK_NATIVE_FN(print))
+const map1 = new Map<string, Runtime>();
+map1.set("ready", MK_NATIVE_FN(whenReady));
+map1.set("init", MK_NATIVE_FN(initready));
+map1.set("message", MK_NATIVE_FN(whenMessageCreate));
 
 export function stdfun(env: Environment){
     // main std lib
@@ -219,7 +289,11 @@ export function stdfun(env: Environment){
     env.declareVar("YellowCat98", MK_NATIVE_FN(YellowCat98), true);
     env.declareVar("nebula", MK_NATIVE_FN(nebula), true);
     env.declareVar("pikala", MK_NATIVE_FN(pikala), true);
-    env.declareVar("bot", MK_NATIVE_FN(CreateBot), true)
+    env.declareVar("bot", MK_NATIVE_FN(CreateBot), true);
+    env.declareVar("events", {
+        type: 'object',
+        properties: map1 
+    } as ObjectVal, true);
     env.declareVar("system", {
 		type: "object",
 		properties: map

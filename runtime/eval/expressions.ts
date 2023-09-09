@@ -193,9 +193,10 @@ export function eval_equality_expr(expression: EqualityExpr, env: Environment): 
 
 function isTruthy(left: Runtime, operator: TokenType, right: Runtime): boolean {
     switch (operator) {
-        case TokenType.DoubleEquals:
-            if ((left as BooleanVal).value == (right as BooleanVal).value) return true
+        case TokenType.DoubleEquals:{
+            if ((left as BooleanVal).value == (right as BooleanVal).value || (left as StringVal).value == (right as unknown) as string) return true
             else return false
+		}
         case TokenType.NotEquals:
             if ((left as BooleanVal).value != (right as BooleanVal).value) return true
             else return false

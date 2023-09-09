@@ -156,7 +156,6 @@ export default class Parser {
             this.expect(TokenType.CloseBrace, 'Expected closing brace for alternate block.');
           }
         }
-      
         return {
           kind: 'IfStmt',
           conditional,

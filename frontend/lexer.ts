@@ -19,7 +19,6 @@ export enum TokenType {
 	CloseBracket,
 	GreaterThanSign,
 	Slash,
-	// keywords 
 	Set,
 	Lock,
 	Fun,
@@ -44,14 +43,14 @@ const KEYWORDS: Record<string, TokenType> = {
 	if: TokenType.If, // implemented
 	else: TokenType.Else, // implemented
 	for: TokenType.For, // not implemented
-	while: TokenType.While, // 5% implemented
+	while: TokenType.While, // deprecated cause of loop()
 	return: TokenType.Return, // not implemented
 	break: TokenType.Break, // not implemented
 	async: TokenType.Async, // not implemented
 	take: TokenType.Take, // not implemented - similar to "import" in typescript
 	from: TokenType.From, // not implemented - similar to "from" in typescript
 	give: TokenType.Give, // not implemented - similar to "export" in typescript
-	using: TokenType.Using
+	using: TokenType.Using // implemented
 };
 
 export interface Token {
