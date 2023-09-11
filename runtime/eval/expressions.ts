@@ -55,6 +55,7 @@ export function eval_binary_expr(
 	const rhs = evaluate(binop.right, env);
 
 	// Only currently support numeric operations
+	if((lhs.type !== null && lhs.type !== undefined) && (rhs.type !== null && rhs.type !== undefined)){
 	if (lhs.type == "number" && rhs.type == "number") {
 		return eval_numeric_binary_expr(
 			lhs as NumberVal,
@@ -62,6 +63,20 @@ export function eval_binary_expr(
 			binop.operator
 		);
 	}
+	if(lhs.type == "string" && rhs.type == "string"){
+		return eval_string_binary_expr(
+			lhs as StringVal,
+			rhs as StringVal,
+			binop.operator
+		)
+	}
+} else {
+	return eval_string_binary_expr(
+		lhs,
+		rhs,
+		binop.operator
+	)
+}
 
 	// One or both are NULL
 	return MK_NULL();
@@ -136,8 +151,15 @@ export function eval_call_expr(expr: CallExpr, env: Environment): Runtime {
 
 export function eval_string_binary_expr(leftHandSide: StringVal, rightHandSide: StringVal, operator: string): StringVal {
     let result: string
+	let lhs = leftHandSide.value;
+	let rhs = rightHandSide.value;
 
-    if (operator == '+') result = leftHandSide.value + rightHandSide.value
+	if(leftHandSide.value === undefined)
+		lhs = (leftHandSide as unknown) as string;
+	if(rightHandSide.value === undefined)
+		rhs = (rightHandSide as unknown) as string;
+
+    if (operator == '+') result = `${lhs.replace("\\n", "\n")}` + `${rhs.replace("\\n", "\n")}`
     else {
         console.log(`Cannot use operator "${operator}" in string binary expression.`);
         Deno.exit(1);
@@ -149,10 +171,13 @@ export function eval_string_binary_expr(leftHandSide: StringVal, rightHandSide: 
 export function evaluateBinaryExpression (binop: BinaryExpr, env: Environment): Runtime {
     const leftHandSide = evaluate(binop.left, env)
     const rightHandSide = evaluate(binop.right, env)
+	console.log({leftHandSide, rightHandSide})
 
     if (leftHandSide.type == 'number' && rightHandSide.type == 'number') {
+		console.log("isanum")
         return eval_numeric_binary_expr(leftHandSide as NumberVal, rightHandSide as NumberVal, binop.operator);
     } else if (leftHandSide.type == 'string' && rightHandSide.type == 'string') {
+		console.log("isastr")
         return eval_string_binary_expr(leftHandSide as StringVal, rightHandSide as StringVal, binop.operator);
     }
 

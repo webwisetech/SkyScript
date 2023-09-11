@@ -18,42 +18,24 @@ IfStmt,
 EqualityExpr,
 } from "./ast.ts";
 
-//import db from '../runtime/localDB/quickdb.ts';
-
 import { Token, tokenize, TokenType } from "./lexer.ts";
 
-/**
- * Frontend for producing a valid AST from sourcode
- */
 export default class Parser {
 	private tokens: Token[] = [];
 
-	/*
-	 * Determines if the parsing is complete and the END OF FILE Is reached.
-	 */
 	private not_eof(): boolean {
 		return this.tokens[0].type != TokenType.EOF;
 	}
 
-	/**
-	 * Returns the currently available token
-	 */
 	private at() {
 		return this.tokens[0] as Token;
 	}
 
-	/**
-	 * Returns the previous token and then advances the tokens array to the next value.
-	 */
 	private eat() {
 		const prev = this.tokens.shift() as Token;
 		return prev;
 	}
 
-	/**
-	 * Returns the previous token and then advances the tokens array to the next value.
-	 *  Also checks the type of expected token and throws if the values dnot match.
-	 */
 	private expect(type: TokenType, err: any) {
 		const prev = this.tokens.shift() as Token;
 		if (!prev || prev.type != type) {

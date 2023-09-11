@@ -6,7 +6,7 @@ import * as util from 'node:util'; // https://deno.land/std@0.110.0/node/util.ts
 import { execSync } from 'https://deno.land/std@0.177.1/node/child_process.ts';
 import colors from 'npm:colors';
 import { evaluate } from "../interpreter.ts";
-import { Client, Message } from 'npm:discord.js';
+import { Client, Message, Role } from 'npm:discord.js';
 import { memory } from '../localDB/memory.ts';
 import { Stmt } from "../../frontend/ast.ts";
 
@@ -226,16 +226,57 @@ function setupMsgFunc(func: Stmt[], scope: Environment, message: Message<true>){
     function sendMessage(args: Runtime[], _scope: Environment){
         if((args[0] as StringVal).value !== undefined){
             const b = (args[0] as StringVal).value;
-            message.channel.send(b);
+            (message.channel as any).send(b).catch(() => {
+                console.log("There was an error sending the message");
+            });
             return MK_NULL();
         }
-        message.channel.send((args[0] as unknown) as string);
+        (message.channel as any).send((args[0] as unknown) as string).catch(() => {
+            console.log("There was an error sending the message");
+        });
     
         return MK_NULL();
     }
+    function sendDM(args: Runtime[], _scope: Environment){
+        if((args[0] as StringVal).value !== undefined){
+            const b = (args[0] as StringVal).value;
+            (message.author as any).send(b).catch(() => {
+                console.log("There was an error sending the DM");
+            });
+            return MK_NULL();
+        }
+        (message.author as any).send((args[0] as unknown) as string).catch(() => {
+            console.log("There was an error sending the DM");
+        });
+    
+        return MK_NULL();
+    }
+    function mentions_role(args: Runtime[], _scope: Environment){
+        const index = (args[0] as NumberVal).value;
+        const arr: Role[] = [];
+        message.mentions.roles.map(a => {
+            console.log(a);
+            arr.push(a);
+        })
+        return { type: 'string', value: (arr[index] as unknown) as string } as StringVal;
+    }
     env.declareVar("message", {
         type: 'object',
-        properties: new Map<string, Runtime>().set("content", { type: 'string', value: message.content } as StringVal).set("send", MK_NATIVE_FN(sendMessage))
+        properties: new Map<string, Runtime>()
+        .set("content", { type: 'string', value: message.content } as StringVal)
+        .set("mentions", {
+            type: 'object',
+            properties: new Map<string, Runtime>().set("roles", MK_NATIVE_FN(mentions_role))
+        } as ObjectVal)
+        .set("send", MK_NATIVE_FN(sendMessage))
+    } as ObjectVal, true);
+    env.declareVar("author", {
+        type: 'object',
+        properties: new Map<string, Runtime>()
+        .set("username", { type: 'string', value: message.author.username } as StringVal)
+        .set("globalname", { type: 'string', value: message.author.globalName } as StringVal)
+        .set("id", { type: 'string', value: message.author.id } as StringVal)
+        .set("dm", MK_NATIVE_FN(sendDM))
     } as ObjectVal, true);
 
 	let result: Runtime = MK_NULL();
