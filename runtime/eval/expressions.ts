@@ -229,3 +229,4 @@ function isTruthy(left: Runtime, operator: TokenType, right: Runtime): boolean {
 			return false;
     }
 }
+// credits to tylerlaceby for the tutorial
