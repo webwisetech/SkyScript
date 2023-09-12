@@ -8,7 +8,7 @@ import colors from 'npm:colors';
 import { evaluate } from "../interpreter.ts";
 import { Client, Message, Role } from 'npm:discord.js';
 import { memory } from '../localDB/memory.ts';
-import { Statement } from "../../frontend/ast.ts";
+import { Statement } from "../../syntax/ast.ts";
 
 function timeFunction(_args: Runtime[], _env: Environment) {
     return MK_NUMBER(Date.now());

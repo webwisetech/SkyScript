@@ -1,5 +1,5 @@
 import Environment from "./environment.ts";
-import { Statement } from "../frontend/ast.ts";
+import { Statement } from "../syntax/ast.ts";
 export type ValueType =
 	| "null"
 	| "number"

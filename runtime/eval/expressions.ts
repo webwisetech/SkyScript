@@ -6,8 +6,8 @@ import {
 	Identifier,
 	MemberExpression,
 	ObjectLiteral,
-} from "../../frontend/ast.ts";
-import { typeOfToken } from "../../frontend/lexer.ts";
+} from "../../syntax/ast.ts";
+import { typeOfToken } from "../../syntax/lexer.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
 import {
@@ -22,7 +22,7 @@ import {
 	StringValue,
 } from "../values.ts";
 
-function eval_numeric_binaryExpression(
+function evaluateNumericBinaryExpression(
 	lhs: NumberValue,
 	rhs: NumberValue,
 	operator: string
@@ -47,7 +47,7 @@ function eval_numeric_binaryExpression(
 /**
  * Evaulates Expressionessions following the binary operation type.
  */
-export function eval_binaryExpression(
+export function evaluateBinaryExpression(
 	binop: BinaryExpression,
 	env: Environment
 ): Runtime {
@@ -57,21 +57,21 @@ export function eval_binaryExpression(
 	// Only currently support numeric operations
 	if((lhs.type !== null && lhs.type !== undefined) && (rhs.type !== null && rhs.type !== undefined)){
 	if (lhs.type == "number" && rhs.type == "number") {
-		return eval_numeric_binaryExpression(
+		return evaluateNumericBinaryExpression(
 			lhs as NumberValue,
 			rhs as NumberValue,
 			binop.operator
 		);
 	}
 	if(lhs.type == "string" && rhs.type == "string"){
-		return eval_string_binaryExpression(
+		return evaluateStringBinaryExpression(
 			lhs as StringValue,
 			rhs as StringValue,
 			binop.operator
 		)
 	}
 } else {
-	return eval_string_binaryExpression(
+	return evaluateStringBinaryExpression(
 		lhs,
 		rhs,
 		binop.operator
@@ -82,7 +82,7 @@ export function eval_binaryExpression(
 	return makeNull();
 }
 
-export function eval_identifier(
+export function evaluateIdentifier(
 	ident: Identifier,
 	env: Environment
 ): Runtime {
@@ -90,7 +90,7 @@ export function eval_identifier(
 	return val;
 }
 
-export function eval_assignment(
+export function evaluateAssignment(
 	node: AssignmentExpression,
 	env: Environment
 ): Runtime {
@@ -102,7 +102,7 @@ export function eval_assignment(
 	return env.assignVar(varname, evaluate(node.value, env));
 }
 
-export function eval_objectExpression(
+export function evaluateObjectExpression(
 	obj: ObjectLiteral,
 	env: Environment
 ): Runtime {
@@ -149,7 +149,7 @@ export function eval_callExpression(Expression: CallExpression, env: Environment
 	throw "Cannot call value that is not a function: " + JSON.stringify(fn);
 }
 
-export function eval_string_binaryExpression(leftHandSide: StringValue, rightHandSide: StringValue, operator: string): StringValue {
+export function evaluateStringBinaryExpression(leftHandSide: StringValue, rightHandSide: StringValue, operator: string): StringValue {
     let result: string
 	let lhs = leftHandSide.value;
 	let rhs = rightHandSide.value;
@@ -175,10 +175,10 @@ export function evaluateBinaryExpressionession (binop: BinaryExpression, env: En
 
     if (leftHandSide.type == 'number' && rightHandSide.type == 'number') {
 		console.log("isanum")
-        return eval_numeric_binaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, binop.operator);
+        return evaluateNumericBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, binop.operator);
     } else if (leftHandSide.type == 'string' && rightHandSide.type == 'string') {
 		console.log("isastr")
-        return eval_string_binaryExpression(leftHandSide as StringValue, rightHandSide as StringValue, binop.operator);
+        return evaluateStringBinaryExpression(leftHandSide as StringValue, rightHandSide as StringValue, binop.operator);
     }
 
     // One or both are NULL

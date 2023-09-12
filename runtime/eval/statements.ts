@@ -3,7 +3,7 @@ import {
 	IfStatement,
 	Program,
 	VarDeclaration,
-} from "../../frontend/ast.ts";
+} from "../../syntax/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
 import { BooleanValue, FunctionValue, makeNull, Runtime } from "../values.ts";
@@ -16,7 +16,7 @@ export function evaluateProgram(program: Program, env: Environment): Runtime {
 	return lastEvaluated;
 }
 
-export function eval_var_declaration(
+export function evaluateVariableDeclaration(
 	declaration: VarDeclaration,
 	env: Environment
 ): Runtime {
@@ -27,7 +27,7 @@ export function eval_var_declaration(
 	return env.declareVar(declaration.identifier, value, declaration.constant);
 }
 
-export function eval_function_declaration(
+export function evaluateFunctionDeclaration(
 	declaration: FunctionDeclaration,
 	env: Environment
 ): Runtime {
@@ -43,7 +43,7 @@ export function eval_function_declaration(
 	return env.declareVar(declaration.name, fn, true);
 }
 
-export function eval_if_Statement(statement: IfStatement, env: Environment): Runtime {
+export function evaluateIfStatement(statement: IfStatement, env: Environment): Runtime {
     const conditional: Runtime = evaluate(statement.conditional, env)
 
     if (conditional.type == 'boolean') {

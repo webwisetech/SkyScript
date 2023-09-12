@@ -14,22 +14,22 @@ import {
 	Statement,
 	StringLiteral,
 	VarDeclaration,
-} from "../frontend/ast.ts";
+} from "../syntax/ast.ts";
 import Environment from "./environment.ts";
 import {
-	eval_function_declaration,
-	eval_if_Statement,
+	evaluateFunctionDeclaration,
+	evaluateIfStatement,
 	evaluateProgram,
-	eval_var_declaration,
+	evaluateVariableDeclaration,
 } from "./eval/statements.ts";
 import {
-	eval_assignment,
-	eval_binaryExpression,
+	evaluateAssignment,
+	evaluateBinaryExpression,
 	eval_callExpression,
 	eval_equalityExpression,
-	eval_identifier,
+	evaluateIdentifier,
 	eval_memberExpression,
-	eval_objectExpression,
+	evaluateObjectExpression,
 } from "./eval/expressions.ts";
 // Runtime | StringVal
 // deno-lint-ignore no-explicit-any
@@ -43,28 +43,28 @@ export function evaluate(astNode: Statement, env: Environment): any {
 		case 'StringLiteral':
 			return (astNode as StringLiteral).value;
 		case "Identifier":
-			return eval_identifier(astNode as Identifier, env);
+			return evaluateIdentifier(astNode as Identifier, env);
 		case "ObjectLiteral":
-			return eval_objectExpression(astNode as ObjectLiteral, env);
+			return evaluateObjectExpression(astNode as ObjectLiteral, env);
 		case "MemberExpression":
 			return eval_memberExpression(astNode as MemberExpression, env);
 		case "CallExpression":
 			return eval_callExpression(astNode as CallExpression, env);
 		case "AssignmentExpression":
-			return eval_assignment(astNode as AssignmentExpression, env);
+			return evaluateAssignment(astNode as AssignmentExpression, env);
 		case "BinaryExpression":
-			return eval_binaryExpression(astNode as BinaryExpression, env);
+			return evaluateBinaryExpression(astNode as BinaryExpression, env);
 		case 'EqualityExpression':
 			return eval_equalityExpression(astNode as EqualityExpression, env);
 		case 'IfStatement':
-			return eval_if_Statement(astNode as IfStatement, env)	
+			return evaluateIfStatement(astNode as IfStatement, env)	
 		case "Program":
 			return evaluateProgram(astNode as Program, env);
 		// Handle statements
 		case "VarDeclaration":
-			return eval_var_declaration(astNode as VarDeclaration, env);
+			return evaluateVariableDeclaration(astNode as VarDeclaration, env);
 		case "FunctionDeclaration":
-			return eval_function_declaration(astNode as FunctionDeclaration, env);
+			return evaluateFunctionDeclaration(astNode as FunctionDeclaration, env);
 		// Handle unimplimented ast types as error.
 		default:
 			console.error(
