@@ -31,7 +31,7 @@ export function evaluateFunctionDeclaration(
 	declaration: FunctionDeclaration,
 	env: Environment
 ): Runtime {
-	// Create new function scope
+	
 	const fn = {
 		type: "function",
 		name: declaration.name,
@@ -51,23 +51,23 @@ export function evaluateIfStatement(statement: IfStatement, env: Environment): R
         const runtimeVal = result as Runtime
         if (isTruthy(runtimeVal)) {
             if (Array.isArray(statement.consequent)) {
-                // Evaluate each statement in the consequent array
+                
                 for (const consequentStatement of statement.consequent) {
                   evaluate(consequentStatement, env);
                 }
             } else {
-                // Evaluate the single consequent statement
+                
                 return evaluate(statement.consequent, env);
             }
         } else {
             if (statement.alternate) {
                 if (Array.isArray(statement.alternate)) {
-                    // Evaluate each statement in the alternate array
+                    
                     for (const alternateStatement of statement.alternate) {
                       evaluate(alternateStatement, env);
                     }
                 } else {
-                    // Evaluate the single alternate statement
+                    
                     return evaluate(statement.alternate, env);
                 }
             }
@@ -75,23 +75,23 @@ export function evaluateIfStatement(statement: IfStatement, env: Environment): R
     } else {
         if (isTruthy(conditional)) {
             if (Array.isArray(statement.consequent)) {
-              // Evaluate each statement in the consequent array
+              
               for (const consequentStatement of statement.consequent) {
                 evaluate(consequentStatement, env);
               }
             } else {
-              // Evaluate the single consequent statement
+              
               return evaluate(statement.consequent, env);
             }
         } else {
             if (statement.alternate) {
                 if (Array.isArray(statement.alternate)) {
-                    // Evaluate each statement in the alternate array
+                    
                     for (const alternateStatement of statement.alternate) {
                       evaluate(alternateStatement, env);
                     }
                 } else {
-                    // Evaluate the single alternate statement
+                    
                     return evaluate(statement.alternate, env);
                 }
             }

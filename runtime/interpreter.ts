@@ -25,13 +25,12 @@ import {
 import {
 	evaluateAssignment,
 	evaluateBinaryExpression,
-	eval_callExpression,
-	eval_equalityExpression,
+	evaluateCallExpression,
+	evaluateEqualityExpression,
 	evaluateIdentifier,
 	eval_memberExpression,
 	evaluateObjectExpression,
 } from "./eval/expressions.ts";
-// Runtime | StringVal
 // deno-lint-ignore no-explicit-any
 export function evaluate(astNode: Statement, env: Environment): any {
 	switch (astNode.kind) {
@@ -49,23 +48,23 @@ export function evaluate(astNode: Statement, env: Environment): any {
 		case "MemberExpression":
 			return eval_memberExpression(astNode as MemberExpression, env);
 		case "CallExpression":
-			return eval_callExpression(astNode as CallExpression, env);
+			return evaluateCallExpression(astNode as CallExpression, env);
 		case "AssignmentExpression":
 			return evaluateAssignment(astNode as AssignmentExpression, env);
 		case "BinaryExpression":
 			return evaluateBinaryExpression(astNode as BinaryExpression, env);
 		case 'EqualityExpression':
-			return eval_equalityExpression(astNode as EqualityExpression, env);
+			return evaluateEqualityExpression(astNode as EqualityExpression, env);
 		case 'IfStatement':
 			return evaluateIfStatement(astNode as IfStatement, env)	
 		case "Program":
 			return evaluateProgram(astNode as Program, env);
-		// Handle statements
+		
 		case "VarDeclaration":
 			return evaluateVariableDeclaration(astNode as VarDeclaration, env);
 		case "FunctionDeclaration":
 			return evaluateFunctionDeclaration(astNode as FunctionDeclaration, env);
-		// Handle unimplimented ast types as error.
+		
 		default:
 			console.error(
 				"This AST Node has not yet been setup for interpretation.\n",

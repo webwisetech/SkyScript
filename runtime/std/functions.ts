@@ -2,7 +2,7 @@
 import { run } from "../../main.ts";
 import Environment from "../environment.ts";
 import { Runtime, MK_NUMBER, NullValue, NumberValue, BooleanValue, StringValue, ObjectValue,MK_NATIVE_FN, makeNull, FunctionValue } from "../values.ts";
-import * as util from 'node:util'; // https://deno.land/std@0.110.0/node/util.ts
+import * as util from 'node:util'; 
 import { execSync } from 'https://deno.land/std@0.177.1/node/child_process.ts';
 import colors from 'npm:colors';
 import { evaluate } from "../interpreter.ts";
@@ -309,7 +309,7 @@ map1.set("init", MK_NATIVE_FN(initready));
 map1.set("message", MK_NATIVE_FN(whenMessageCreate));
 
 export function stdfun(env: Environment){
-    // main std lib
+    
 	env.declareVar("out", MK_NATIVE_FN(println), true);
 	env.declareVar("time", MK_NATIVE_FN(timeFunction), true);
 	env.declareVar("exit", MK_NATIVE_FN(exit), true);
@@ -318,14 +318,14 @@ export function stdfun(env: Environment){
     env.declareVar("ask", MK_NATIVE_FN(ask), true);
     env.declareVar("mode", MK_NATIVE_FN(envMode), true);
     env.declareVar("loop", MK_NATIVE_FN(loop), true);
-    // colors
+    
     env.declareVar("blue", MK_NATIVE_FN(blue), true);
     env.declareVar("green", MK_NATIVE_FN(green), true);
     env.declareVar("red", MK_NATIVE_FN(red), true);
     env.declareVar("yellow", MK_NATIVE_FN(yellow), true);
     env.declareVar("cyan", MK_NATIVE_FN(cyan), true);
     env.declareVar("magenta", MK_NATIVE_FN(magenta), true);
-    // other std funcs
+    
     env.declareVar("nnei", MK_NATIVE_FN(nnei), true);
     env.declareVar("YellowCat98", MK_NATIVE_FN(YellowCat98), true);
     env.declareVar("nebula", MK_NATIVE_FN(nebula), true);

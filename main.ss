@@ -1,0 +1,3 @@
+using "potatoes"
+
+out("yo")

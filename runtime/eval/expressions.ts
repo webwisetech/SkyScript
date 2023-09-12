@@ -10,12 +10,12 @@ import {
 import { typeOfToken } from "../../syntax/lexer.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
+import { SkyScriptErr } from "../others/error.ts";
 import {
 	BooleanValue,
 	FunctionValue,
 	makeNull,
 	NativeFnValue,
-	NullValue,
 	NumberValue,
 	ObjectValue,
 	Runtime,
@@ -35,7 +35,7 @@ function evaluateNumericBinaryExpression(
 	} else if (operator == "*") {
 		result = lhs.value * rhs.value;
 	} else if (operator == "/") {
-		// TODO: Division by zero checks
+		
 		result = lhs.value / rhs.value
 	} else {
 		result = lhs.value % rhs.value;
@@ -54,7 +54,7 @@ export function evaluateBinaryExpression(
 	const lhs = evaluate(binop.left, env);
 	const rhs = evaluate(binop.right, env);
 
-	// Only currently support numeric operations
+	
 	if((lhs.type !== null && lhs.type !== undefined) && (rhs.type !== null && rhs.type !== undefined)){
 	if (lhs.type == "number" && rhs.type == "number") {
 		return evaluateNumericBinaryExpression(
@@ -78,7 +78,7 @@ export function evaluateBinaryExpression(
 	)
 }
 
-	// One or both are NULL
+	
 	return makeNull();
 }
 
@@ -95,7 +95,7 @@ export function evaluateAssignment(
 	env: Environment
 ): Runtime {
 	if (node.assigne.kind !== "Identifier") {
-		throw `Invalid LHS inaide assignment Expression ${JSON.stringify(node.assigne)}`;
+		throw new SkyScriptErr("Invalid assignment - "+node.assigne);
 	}
 
 	const varname = (node.assigne as Identifier).symbol;
@@ -117,7 +117,7 @@ export function evaluateObjectExpression(
 	return object;
 }
 
-export function eval_callExpression(Expression: CallExpression, env: Environment): Runtime {
+export function evaluateCallExpression(Expression: CallExpression, env: Environment): Runtime {
 	const args = Expression.args.map((arg) => evaluate(arg, env));
 	const fn = evaluate(Expression.caller, env);
 
@@ -130,10 +130,10 @@ export function eval_callExpression(Expression: CallExpression, env: Environment
 		const func = fn as FunctionValue;
 		const scope = new Environment(func.declarationEnv);
 
-		// Create the variables for the parameters list
+		
 		for (let i = 0; i < func.parameters.length; i++) {
-			// TODO Check the bounds here.
-			// verify arity of function
+			
+			
 			const varname = func.parameters[i];
 			scope.declareVar(varname, args[i], false);
 		}
@@ -161,28 +161,10 @@ export function evaluateStringBinaryExpression(leftHandSide: StringValue, rightH
 
     if (operator == '+') result = `${lhs.replace("\\n", "\n")}` + `${rhs.replace("\\n", "\n")}`
     else {
-        console.log(`Cannot use operator "${operator}" in string binary Expressionession.`);
-        Deno.exit(1);
+        throw new SkyScriptErr(`Cannot use operator "${operator}" in string Expression.`);
     }
 
     return { value: result, type: 'string' };
-}
-
-export function evaluateBinaryExpressionession (binop: BinaryExpression, env: Environment): Runtime {
-    const leftHandSide = evaluate(binop.left, env)
-    const rightHandSide = evaluate(binop.right, env)
-	console.log({leftHandSide, rightHandSide})
-
-    if (leftHandSide.type == 'number' && rightHandSide.type == 'number') {
-		console.log("isanum")
-        return evaluateNumericBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, binop.operator);
-    } else if (leftHandSide.type == 'string' && rightHandSide.type == 'string') {
-		console.log("isastr")
-        return evaluateStringBinaryExpression(leftHandSide as StringValue, rightHandSide as StringValue, binop.operator);
-    }
-
-    // One or both are NULL
-    return { type: 'null', value: null } as NullValue;
 }
 
 export function eval_memberExpression(Expressionession: MemberExpression, env: Environment): Runtime {
@@ -199,11 +181,11 @@ export function eval_memberExpression(Expressionession: MemberExpression, env: E
             throw `Property "${property}" does not exist on object.`;
       }
     } else {
-        throw 'Cannot access property on non-object value.';
+        throw new SkyScriptErr('Cannot access property on non-object value.');
     }
 }
 
-export function eval_equalityExpression(Expressionession: EqualityExpression, env: Environment): Runtime {
+export function evaluateEqualityExpression(Expressionession: EqualityExpression, env: Environment): Runtime {
     const left = evaluate(Expressionession.left, env)
     const right = evaluate(Expressionession.right, env)
     const operator = Expressionession.operator
@@ -229,4 +211,25 @@ function isTruthy(left: Runtime, operator: typeOfToken, right: Runtime): boolean
 			return false;
     }
 }
-// credits to tylerlaceby for the tutorial
+
+
+
+/*
+
+export function evaluateBinaryExpressiona(binop: BinaryExpression, env: Environment): Runtime {
+    const leftHandSide = evaluate(binop.left, env)
+    const rightHandSide = evaluate(binop.right, env)
+	console.log({leftHandSide, rightHandSide})
+
+    if (leftHandSide.type == 'number' && rightHandSide.type == 'number') {
+		console.log("isanum")
+        return evaluateNumericBinaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, binop.operator);
+    } else if (leftHandSide.type == 'string' && rightHandSide.type == 'string') {
+		console.log("isastr")
+        return evaluateStringBinaryExpression(leftHandSide as StringValue, rightHandSide as StringValue, binop.operator);
+    }
+
+    
+    return { type: 'null', value: null } as NullValue;
+}
+*/

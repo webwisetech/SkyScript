@@ -1,4 +1,4 @@
-import Parser from './frontend/parser.ts';
+import Parser from './syntax/parser.ts';
 import { createGlobalEnv } from './runtime/environment.ts';
 import { evaluate } from './runtime/interpreter.ts';
 import * as nodepath from "https://deno.land/std@0.110.0/node/path/posix.ts";
@@ -26,7 +26,7 @@ export async function run(path: string){
     const parser = new Parser();
     const env = createGlobalEnv();
     const input = await Deno.readTextFile(nodepath.join(__dirname, path));
-    const program = parser.produceAST(input);
+    const program = parser.createAST(input);
     /*const result =*/ evaluate(program, env);
     // console.log(result)
 }
@@ -36,7 +36,7 @@ async function runmain(path: string){
     try{const parser = new Parser();
     const env = createGlobalEnv();
     const input = await Deno.readTextFile(path);
-    const program = parser.produceAST(input);
+    const program = parser.createAST(input);
     /*const result =*/ evaluate(program, env);
     //console.log(result)
     } catch(e) {
@@ -63,7 +63,7 @@ function repl(){
         } else if(input == "/help"){
             console.log("All commands: \n- /exit: exit the repl\n- /debug: enable debug mode\n- /help: shows this menu")
         }else{
-            const program = parser.produceAST(input);
+            const program = parser.createAST(input);
 
         if(DebugMode){
             console.log(program);

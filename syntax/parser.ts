@@ -1,4 +1,7 @@
 // deno-lint-ignore-file no-explicit-any prefer-const
+import { memory } from "../runtime/localDB/memory.ts";
+import { SkyScriptErr } from "../runtime/others/error.ts";
+import { SkyScriptWarn } from "../runtime/others/warn.ts";
 import {
 	AssignmentExpression,
 	BinaryExpression,
@@ -53,7 +56,7 @@ export default class Parser {
 			body: [],
 		};
 
-		// Parse until end of file
+		
 		while (this.isNotEOF()) {
 			program.body.push(this.parse_Statement());
 		}
@@ -61,41 +64,45 @@ export default class Parser {
 		return program;
 	}
 
-	// Handle complex statement types
+	
 	private parse_Statement(): Statement {
-		// skip to parse_Expression
+		
 		switch (this.currentToken().type) {
 			case typeOfToken.Using:
-				return this.parse_using_modules();
+				return this.parseModules();
 			case typeOfToken.Slash:
-				return this.parse_comments();
+				return this.parseComments();
 			case typeOfToken.Set:
 			case typeOfToken.Lock:
-				return this.parse_var_declaration();
+				return this.parseVariables();
 			case typeOfToken.Fun:
-				return this.parse_fn_declaration();
+				return this.parseFunctions();
 			case typeOfToken.If:
-				return this.parse_if_Statement();
+				return this.parseIf();
 			default:
-				return this.parse_Expression();
+				return this.parseExpression();
 		}
 	}
 
-	/*private async addModule(module: string): Promise<void>{
-		type modules = "discord.ss" | "colors.ss";
-		const mods = await db.get("modules") as modules[] | [] as modules[];
-		if(!["discord.ss", "colors.ss"].includes(module)) throw "are you sure you didn't forget something?";
-		mods.push(module as never);
-		await db.set("modules", mods);
-	}*/
+	private addModule(module: string): void{
+		if(module === "discord.ss"){
+			memory["modules"]!["discord.ss"] = true;
+		} else if(module === "colors") {
+			memory["modules"]!["colors"] = true;
+		}else if(module === "nostrict"){
+			memory["modules"]!["nostrict"] = true;
+		} else {
+			new SkyScriptWarn("No module found with name \""+module+"\"");
+		}
+	}
 
-	private parse_using_modules(): Statement{
+	private parseModules(): Statement{
 		this.nextToken()
-		this.ensureToken(typeOfToken.String, "No module found after the using keyword");
-		
+		const a = this.ensureToken(typeOfToken.String, "No module found after the using keyword");
+		this.addModule(a.value);
 		return { kind: "NumericLiteral", value: 0 } as NumericLiteral;
 	}
-	private parse_comments(): Statement {
+	private parseComments(): Statement {
 		this.nextToken()
 		while(this.nextToken().type != typeOfToken.Slash && this.isNotEOF()){
 			continue;
@@ -103,9 +110,9 @@ export default class Parser {
 		return { kind: 'NumericLiteral', value: 0 } as NumericLiteral;
 	}
 
-	private parse_if_Statement(): IfStatement {
+	private parseIf(): IfStatement {
         this.ensureToken(typeOfToken.If, 'Expected "if" keyword.');
-        const conditional = this.parse_Expression();
+        const conditional = this.parseExpression();
         const consequent: Statement[] = [];
         let right: Expression = {} as Expression;
         let operator: typeOfToken =typeOfToken.BinaryEquals;
@@ -124,7 +131,7 @@ export default class Parser {
           this.nextToken();
       
           if (this.currentToken().type === typeOfToken.If) {
-            alternate = [this.parse_if_Statement()];
+            alternate = [this.parseIf()];
           } else {
             alternate = [];
       
@@ -147,8 +154,8 @@ export default class Parser {
         } as IfStatement
       }
 
-	private parse_fn_declaration(): Statement {
-		this.nextToken(); // eat fn keyword
+	private parseFunctions(): Statement {
+		this.nextToken(); 
 		const name = this.ensureToken(
 			typeOfToken.Identifier,
 			"Expected function name following fn keyword"
@@ -193,7 +200,7 @@ export default class Parser {
 		return fn;
 	}
 
-	parse_var_declaration(): Statement {
+	parseVariables(): Statement {
 		const isConstant = this.nextToken().type == typeOfToken.Lock;
 		const identifier = this.ensureToken(
 			typeOfToken.Identifier,
@@ -201,7 +208,7 @@ export default class Parser {
 		).value;
 
 		if (this.currentToken().type == typeOfToken.Semicolon) {
-			this.nextToken(); // expect semicolon
+			this.nextToken(); 
 			if (isConstant) {
 				throw "Must assign a value to constant Expressionession. No value provided.";
 			}
@@ -220,7 +227,7 @@ export default class Parser {
 
 		const declaration = {
 			kind: "VarDeclaration",
-			value: this.parse_Expression(),
+			value: this.parseExpression(),
 			identifier,
 			constant: isConstant,
 		} as VarDeclaration;
@@ -228,16 +235,16 @@ export default class Parser {
 		return declaration;
 	}
 
-	// Handle Expressionessions
-	private parse_Expression(): Expression {
+	
+	private parseExpression(): Expression {
 		return this.parse_assignment_Expression();
 	}
 
 	private parse_assignment_Expression(): Expression {
-		const left = this.parse_object_Expression();
+		const left = this.parseObjects();
 
 		if (this.currentToken().type == typeOfToken.Equals) {
-			this.nextToken(); // advance past equals
+			this.nextToken(); 
 			const value = this.parse_assignment_Expression();
 			return { value, assigne: left, kind: "AssignmentExpression" } as AssignmentExpression;
 		}
@@ -245,13 +252,13 @@ export default class Parser {
 		return left;
 	}
 
-	private parse_object_Expression(): Expression {
-		// { Prop[] }
+	private parseObjects(): Expression {
+		
 		if (this.currentToken().type !== typeOfToken.OpenBrace) {
-			return this.parse_additive_Expression();
+			return this.parseAddition();
 		}
 
-		this.nextToken(); // advance past open brace.
+		this.nextToken(); 
 		const properties = new Array<Property>();
 
 		while (this.isNotEOF() && this.currentToken().type != typeOfToken.CloseBrace) {
@@ -260,23 +267,23 @@ export default class Parser {
 				"Object literal key expected"
 			).value;
 
-			// Allows shorthand key: pair -> { key, }
+			
 			if (this.currentToken().type == typeOfToken.Comma) {
-				this.nextToken(); // advance past comma
+				this.nextToken(); 
 				properties.push({ key, kind: "Property" } as Property);
 				continue;
-			} // Allows shorthand key: pair -> { key }
+			} 
 			else if (this.currentToken().type == typeOfToken.CloseBrace) {
 				properties.push({ key, kind: "Property" });
 				continue;
 			}
 
-			// { key: val }
+			
 			this.ensureToken(
 				typeOfToken.Colon,
 				"Missing colon following identifier in ObjectExpression"
 			);
-			const value = this.parse_Expression();
+			const value = this.parseExpression();
 
 			properties.push({ kind: "Property", value, key });
 			if (this.currentToken().type != typeOfToken.CloseBrace) {
@@ -291,14 +298,14 @@ export default class Parser {
 		return { kind: "ObjectLiteral", properties } as ObjectLiteral;
 	}
 
-	// Handle Addition & Subtraction Operations
-	private parse_additive_Expression(): Expression {
-		let left = this.parse_multiplicitave_Expression();
+	
+	private parseAddition(): Expression {
+		let left = this.parseMultiplication();
 
 		while (this.currentToken().value == "+" || this.currentToken().value == "-" && this.isNotEOF()) {
 			const operator = this.nextToken().value;
 
-			const right = this.parse_multiplicitave_Expression();
+			const right = this.parseMultiplication();
 			left = {
 				kind: "BinaryExpression",
 				left,
@@ -310,13 +317,13 @@ export default class Parser {
 		return left;
 	}
 
-	private parse_multiplicitave_Expression(): Expression {
-		let left = this.parse_call_member_Expression();
+	private parseMultiplication(): Expression {
+		let left = this.parseMemberCalls();
 
 		while ( ["/", "*", "%"].includes(this.currentToken().value) ){
 			const operator = this.nextToken().value;
 		
-			const right = this.parse_call_member_Expression();
+			const right = this.parseMemberCalls();
 			left = {
 				kind: "BinaryExpression",
 				left,
@@ -328,17 +335,17 @@ export default class Parser {
 		return left;
 	}
 
-	private parse_call_member_Expression(): Expression {
-		const member = this.parse_member_Expression();
+	private parseMemberCalls(): Expression {
+		const member = this.parseMember();
 
 		if (this.currentToken().type == typeOfToken.OpenParen) {
-			return this.parse_call_Expression(member);
+			return this.parseCalls(member);
 		}
 
 		return member;
 	}
 
-	private parse_call_Expression(caller: Expression): Expression {
+	private parseCalls(caller: Expression): Expression {
 		let call_Expression: Expression = {
 			kind: "CallExpression",
 			caller,
@@ -346,7 +353,7 @@ export default class Parser {
 		} as CallExpression;
 
 		if (this.currentToken().type == typeOfToken.OpenParen) {
-			call_Expression = this.parse_call_Expression(call_Expression);
+			call_Expression = this.parseCalls(call_Expression);
 		}
 
 		return call_Expression;
@@ -374,8 +381,8 @@ export default class Parser {
 		return args;
 	}
 
-	private parse_member_Expression(): Expression {
-		let object = this.parse_primary_Expression();
+	private parseMember(): Expression {
+		let object = this.parsePrimary();
 
 		while (
 			this.currentToken().type == typeOfToken.Dot ||
@@ -387,13 +394,13 @@ export default class Parser {
 
 			if (operator.type == typeOfToken.Dot) {
 				computed = false;
-				property = this.parse_primary_Expression();
+				property = this.parsePrimary();
 				if (property.kind != "Identifier") {
 					throw `Cannonot use dot operator without right hand side being a identifier`;
 				}
 			} else {
 				computed = true;
-				property = this.parse_Expression();
+				property = this.parseExpression();
 				this.ensureToken(
 					typeOfToken.CloseBracket,
 					"Missing closing bracket in computed value."
@@ -411,7 +418,7 @@ export default class Parser {
 		return object;
 	}
 
-	private parse_primary_Expression(): Expression {
+	private parsePrimary(): Expression {
 		const tk = this.currentToken().type;
 
 		switch (tk) {
@@ -430,27 +437,26 @@ export default class Parser {
 				return { kind: 'StringLiteral', value: this.nextToken().value } as StringLiteral;
 			case typeOfToken.OpenParen: {
 				this.nextToken(); 
-				const left = this.parse_Expression();
+				const left = this.parseExpression();
 				let right: Expression;
 				let value: Expression;
 				let operator: typeOfToken;
 				if (this.currentToken().type == typeOfToken.DoubleEquals || this.currentToken().type == typeOfToken.NotEquals) {
                     operator = this.nextToken().type
-                    right = this.parse_Expression()
+                    right = this.parseExpression()
                     value = { kind: 'EqualityExpression', left, operator, right } as EqualityExpression
                 } else {
                     value = left
                 }
 				this.ensureToken(
 					typeOfToken.CloseParen,
-					"Unexpected token found inside parenthesised Expressionession. Expected closing parenthesis."
+					"Unexpected token found inside parenthesised Expression."
 				); 
 				return value;
 			}
 
 			default:
-				console.error("Unexpected token found during parsing!", this.currentToken());
-				Deno.exit(1);
+				throw new SkyScriptErr("No Token found while parsing.");
 		}
 	}
 }

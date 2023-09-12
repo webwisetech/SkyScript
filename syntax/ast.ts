@@ -3,7 +3,6 @@
 import { typeOfToken } from "./lexer.ts";
 
 export type NodeType =
-    // statements
 	| "Program"
 	| "VarDeclaration"
 	| "Property"
@@ -11,13 +10,11 @@ export type NodeType =
 	| "WhileStatement"
 	| "Identifier"
 	| "FunctionDeclaration"
-	// Expressionessions
 	| "EqualityExpression"
 	| "BinaryExpression"
 	| "AssignmentExpression"
 	| "MemberExpression"
 	| "CallExpression"
-	// literals
 	| "ObjectLiteral"
 	| "ArrayLiteral"
 	| "NumericLiteral"
