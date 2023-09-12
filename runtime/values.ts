@@ -1,5 +1,5 @@
 import Environment from "./environment.ts";
-import { Stmt } from "../frontend/ast.ts";
+import { Statement } from "../frontend/ast.ts";
 export type ValueType =
 	| "null"
 	| "number"
@@ -13,53 +13,53 @@ export type ValueType =
 	| "command";
 
 // deno-lint-ignore no-empty-interface
-export interface RuntimeVal {}
+export interface RuntimeValue {}
 
-export interface Runtime extends RuntimeVal{
+export interface Runtime extends RuntimeValue {
 	type: ValueType;
 }
 
-export interface NullVal extends Runtime {
+export interface NullValue extends Runtime {
 	type: "null";
 	value: null;
 }
 
-export function MK_NULL() {
-	return { type: "null", value: null } as NullVal;
+export function makeNull() {
+	return { type: "null", value: null } as NullValue;
 }
 
-export interface BooleanVal extends Runtime {
+export interface BooleanValue extends Runtime {
 	type: "boolean";
 	value: boolean;
 }
 
 export function MK_BOOL(b = true) {
-	return { type: "boolean", value: b } as BooleanVal;
+	return { type: "boolean", value: b } as BooleanValue;
 }
 
-export interface NumberVal extends Runtime {
+export interface NumberValue extends Runtime {
 	type: "number";
 	value: number;
 }
 
 export function MK_NUMBER(n = 0) {
-	return { type: "number", value: n } as NumberVal;
+	return { type: "number", value: n } as NumberValue;
 }
-export interface ObjectVal extends Runtime {
+export interface ObjectValue extends Runtime {
 	type: "object";
 	properties: Map<string, Runtime>;
 }
 
-export interface StringVal extends Runtime {
+export interface StringValue extends Runtime {
     type: 'string'
     value: string
 }
 
 export function MK_STR(str: string){
-	return { type: "string", value: str } as StringVal;
+	return { type: "string", value: str } as StringValue;
 }
 
-export type FunctionCall = (args: Runtime[], env: Environment) => Runtime | StringVal;
+export type FunctionCall = (args: Runtime[], env: Environment) => Runtime | StringValue;
 
 export interface NativeFnValue extends Runtime {
 	type: "native-fn";
@@ -74,7 +74,7 @@ export interface FunctionValue extends Runtime {
 	name: string;
 	parameters: string[];
 	declarationEnv: Environment;
-	body: Stmt[];
+	body: Statement[];
 }
 
 export interface DiscordBotCommand extends Runtime {
@@ -83,7 +83,7 @@ export interface DiscordBotCommand extends Runtime {
 	command: FunctionValue;
 }
 
-export interface ArrayVal extends Runtime {
+export interface ArrayValue extends Runtime {
 	type: "array";
 	elements: Runtime[];
 }

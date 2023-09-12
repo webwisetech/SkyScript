@@ -1,4 +1,4 @@
-export enum TokenType {
+export enum typeOfToken {
 	Number,
 	Identifier,
 	String,
@@ -36,47 +36,47 @@ export enum TokenType {
 	EOF,
 }
 
-const KEYWORDS: Record<string, TokenType> = {
-	set: TokenType.Set, // implemented
-	lock: TokenType.Lock, // implemented
-	fun: TokenType.Fun, // implemented
-	if: TokenType.If, // implemented
-	else: TokenType.Else, // implemented
-	for: TokenType.For, // not implemented
-	while: TokenType.While, // deprecated cause of loop()
-	return: TokenType.Return, // not implemented
-	break: TokenType.Break, // not implemented
-	async: TokenType.Async, // not implemented
-	take: TokenType.Take, // not implemented - similar to "import" in typescript
-	from: TokenType.From, // not implemented - similar to "from" in typescript
-	give: TokenType.Give, // not implemented - similar to "export" in typescript
-	using: TokenType.Using // implemented
+const KEYWORDS: Record<string, typeOfToken> = {
+	set: typeOfToken.Set, // implemented
+	lock: typeOfToken.Lock, // implemented
+	fun: typeOfToken.Fun, // implemented
+	if: typeOfToken.If, // implemented
+	else: typeOfToken.Else, // implemented
+	for: typeOfToken.For, // not implemented
+	while: typeOfToken.While, // deprecated cause of loop()
+	return: typeOfToken.Return, // not implemented
+	break: typeOfToken.Break, // not implemented
+	async: typeOfToken.Async, // not implemented
+	take: typeOfToken.Take, // not implemented - similar to "import" in typescript
+	from: typeOfToken.From, // not implemented - similar to "from" in typescript
+	give: typeOfToken.Give, // not implemented - similar to "export" in typescript
+	using: typeOfToken.Using // implemented
 };
 
 export interface Token {
 	value: string;
-	type: TokenType;
+	type: typeOfToken;
 }
 
-function token(value = "", type: TokenType): Token {
+function tokenize(value = "", type: typeOfToken): Token {
 	return { value, type };
 }
 
-function isalpha(src: string) {
+function isAlphabetic(src: string) {
 	return src.toUpperCase() != src.toLowerCase();
 }
 
-function isskippable(str: string) {
+function isSkippable(str: string) {
 	return str == " " || str == "\n" || str == "\t" || str == "\r" || str == ";" || str == "/";
 }
 
-function isint(str: string) {
+function isNumber(str: string) {
 	const c = str.charCodeAt(0);
 	const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)];
 	return c >= bounds[0] && c <= bounds[1];
 }
 
-export function tokenize(sourceCode: string): Token[] {
+export function setupTokens(sourceCode: string): Token[] {
 	const tokens = new Array<Token>();
 	const src = sourceCode.split("");
 
@@ -84,35 +84,35 @@ export function tokenize(sourceCode: string): Token[] {
 		let sc = src[0];
 	switch(src[0]){
 		case "(":
-			tokens.push(token(src.shift(), TokenType.OpenParen));
+			tokens.push(tokenize(src.shift(), typeOfToken.OpenParen));
 		break;
 		case ")":
-			tokens.push(token(src.shift(), TokenType.CloseParen));
+			tokens.push(tokenize(src.shift(), typeOfToken.CloseParen));
 		break;
 		case "{":
-			tokens.push(token(src.shift(), TokenType.OpenBrace));
+			tokens.push(tokenize(src.shift(), typeOfToken.OpenBrace));
 		break;
 		case "}":
-			tokens.push(token(src.shift(), TokenType.CloseBrace));
+			tokens.push(tokenize(src.shift(), typeOfToken.CloseBrace));
 		break;
 		case "[":
-			tokens.push(token(src.shift(), TokenType.OpenBracket));
+			tokens.push(tokenize(src.shift(), typeOfToken.OpenBracket));
 		break;
 		case "]":
-			tokens.push(token(src.shift(), TokenType.CloseBracket));
+			tokens.push(tokenize(src.shift(), typeOfToken.CloseBracket));
 		break;
 		case "+":
 			switch(src[1]){
 				case "+":
 					src.shift();
-					tokens.push(token(src.shift() + "+", TokenType.BinaryOperator));
+					tokens.push(tokenize(src.shift() + "+", typeOfToken.BinaryOperator));
 				break;
 				case "=":
-					tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
+					tokens.push(tokenize(src.shift() + "=", typeOfToken.BinaryOperator));
 					src.shift();
 				break;
 				default:
-					tokens.push(token(src.shift(), TokenType.BinaryOperator));
+					tokens.push(tokenize(src.shift(), typeOfToken.BinaryOperator));
 				break;
 			} 
 		break;
@@ -120,51 +120,51 @@ export function tokenize(sourceCode: string): Token[] {
 			switch(src[1]){
 				case "-":
 					src.shift();
-					tokens.push(token(src.shift() + "-", TokenType.BinaryOperator));
+					tokens.push(tokenize(src.shift() + "-", typeOfToken.BinaryOperator));
 				break;
 				case "=":
-					tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
+					tokens.push(tokenize(src.shift() + "=", typeOfToken.BinaryOperator));
 					src.shift();
 				break;
 				default: 
-					tokens.push(token(src.shift(), TokenType.BinaryOperator));
+					tokens.push(tokenize(src.shift(), typeOfToken.BinaryOperator));
 				break;
 			} 
 		break;
 		case "*":
 			switch(src[1]){
 				case "=":
-					tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
+					tokens.push(tokenize(src.shift() + "=", typeOfToken.BinaryOperator));
 					src.shift();
 				break;
 				default:
-					tokens.push(token(src.shift(), TokenType.BinaryOperator));
+					tokens.push(tokenize(src.shift(), typeOfToken.BinaryOperator));
 				break;
 			}
 		break;
 		case "/":
 			switch(src[1]){
 				case "=":
-					tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
+					tokens.push(tokenize(src.shift() + "=", typeOfToken.BinaryOperator));
 					src.shift();
 				break;
 				case "/":
-					tokens.push(token(src.shift()+'/', TokenType.Slash));
+					tokens.push(tokenize(src.shift()+'/', typeOfToken.Slash));
 					src.shift();
 				break;
 				default:
-					tokens.push(token(src.shift(), TokenType.BinaryOperator));
+					tokens.push(tokenize(src.shift(), typeOfToken.BinaryOperator));
 				break;
 			}
 		break;
 		case "%":
 			switch(src[1]){
 				case "=":
-					tokens.push(token(src.shift() + "=", TokenType.BinaryOperator));
+					tokens.push(tokenize(src.shift() + "=", typeOfToken.BinaryOperator));
 					src.shift();
 				break;
 				default:
-					tokens.push(token(src.shift(), TokenType.BinaryOperator));
+					tokens.push(tokenize(src.shift(), typeOfToken.BinaryOperator));
 				break;
 			}
 		break;
@@ -173,10 +173,10 @@ export function tokenize(sourceCode: string): Token[] {
 				case "=":
 					src.shift();
 					src.shift();
-					tokens.push(token("==", TokenType.DoubleEquals));
+					tokens.push(tokenize("==", typeOfToken.DoubleEquals));
 				break;
 				default:
-					tokens.push(token(src.shift(), TokenType.Equals));
+					tokens.push(tokenize(src.shift(), typeOfToken.Equals));
 				break;
 			}
 		break;
@@ -185,22 +185,22 @@ export function tokenize(sourceCode: string): Token[] {
 				case "=":
 					src.shift();
                 	src.shift();
-                	tokens.push(token('!=', TokenType.NotEquals));
+                	tokens.push(tokenize('!=', typeOfToken.NotEquals));
 				break;
 				default: break;
             }
 		break;
 		case ";":
-			tokens.push(token(src.shift(), TokenType.Semicolon));
+			tokens.push(tokenize(src.shift(), typeOfToken.Semicolon));
 		break;
 		case ":":
-			tokens.push(token(src.shift(), TokenType.Colon));
+			tokens.push(tokenize(src.shift(), typeOfToken.Colon));
 		break;
 		case ",":
-			tokens.push(token(src.shift(), TokenType.Comma));
+			tokens.push(tokenize(src.shift(), typeOfToken.Comma));
 		break;
 		case ".":
-			tokens.push(token(src.shift(), TokenType.Dot));
+			tokens.push(tokenize(src.shift(), typeOfToken.Dot));
 		break;
 		case '"':
 		case "'":{
@@ -212,7 +212,7 @@ export function tokenize(sourceCode: string): Token[] {
             }
 
             src.shift()
-            tokens.push(token(string, TokenType.String))
+            tokens.push(tokenize(string, typeOfToken.String))
 			} break;
 		case ">": {
 			switch(src[1]){
@@ -227,25 +227,25 @@ export function tokenize(sourceCode: string): Token[] {
 		} break;
 		default: {
 			let a: string;
-			if (isint(src[0])) { a = "int"} else if (isalpha(src[0])) { a = "alpha" } else if (isskippable(src[0])) { a = "skippable"} else { a = "other" }
+			if (isNumber(src[0])) { a = "int"} else if (isAlphabetic(src[0])) { a = "alpha" } else if (isSkippable(src[0])) { a = "skippable"} else { a = "other" }
 			switch(a){
 				case "int": {
 					let num = "";
-					while (src.length > 0 && isint(src[0])) {
+					while (src.length > 0 && isNumber(src[0])) {
 						num += src.shift();
 					}
-					tokens.push(token(num, TokenType.Number));
+					tokens.push(tokenize(num, typeOfToken.Number));
 				} break;
 				case "alpha": {
 					let ident = "";
-				while (src.length > 0 && isalpha(src[0])) {
+				while (src.length > 0 && isAlphabetic(src[0])) {
 					ident += src.shift();
 				}
 				const reserved = KEYWORDS[ident];
 				if (typeof reserved == "number") {
-					tokens.push(token(ident, reserved));
+					tokens.push(tokenize(ident, reserved));
 				} else {
-					tokens.push(token(ident, TokenType.Identifier));
+					tokens.push(tokenize(ident, typeOfToken.Identifier));
 				} 
 				} break;
 				case "skippable":
@@ -264,6 +264,6 @@ export function tokenize(sourceCode: string): Token[] {
 	}
 	}
 
-	tokens.push({ type: TokenType.EOF, value: "EndOfFile" });
+	tokens.push({ type: typeOfToken.EOF, value: "EndOfFile" });
 	return tokens;
 }

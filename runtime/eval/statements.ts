@@ -1,15 +1,15 @@
 import {
 	FunctionDeclaration,
-	IfStmt,
+	IfStatement,
 	Program,
 	VarDeclaration,
 } from "../../frontend/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
-import { BooleanVal, FunctionValue, MK_NULL, Runtime } from "../values.ts";
+import { BooleanValue, FunctionValue, makeNull, Runtime } from "../values.ts";
 
-export function eval_program(program: Program, env: Environment): Runtime {
-	let lastEvaluated: Runtime = MK_NULL();
+export function evaluateProgram(program: Program, env: Environment): Runtime {
+	let lastEvaluated: Runtime = makeNull();
 	for (const statement of program.body) {
 		lastEvaluated = evaluate(statement, env);
 	}
@@ -22,7 +22,7 @@ export function eval_var_declaration(
 ): Runtime {
 	const value = declaration.value
 		? evaluate(declaration.value, env)
-		: MK_NULL();
+		: makeNull();
 
 	return env.declareVar(declaration.identifier, value, declaration.constant);
 }
@@ -43,11 +43,11 @@ export function eval_function_declaration(
 	return env.declareVar(declaration.name, fn, true);
 }
 
-export function eval_if_stmt(statement: IfStmt, env: Environment): Runtime {
+export function eval_if_Statement(statement: IfStatement, env: Environment): Runtime {
     const conditional: Runtime = evaluate(statement.conditional, env)
 
     if (conditional.type == 'boolean') {
-        const result = (conditional as BooleanVal)
+        const result = (conditional as BooleanValue)
         const runtimeVal = result as Runtime
         if (isTruthy(runtimeVal)) {
             if (Array.isArray(statement.consequent)) {
@@ -98,12 +98,12 @@ export function eval_if_stmt(statement: IfStmt, env: Environment): Runtime {
         }
     }
       
-    return MK_NULL();
+    return makeNull();
 }
 
 function isTruthy(conditional: Runtime) {
     if (conditional.type == 'boolean') {
-        const bool = (conditional as BooleanVal).value
+        const bool = (conditional as BooleanValue).value
         if (bool) return true
         else return false
     }

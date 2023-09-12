@@ -1,32 +1,32 @@
 import {
-	AssignmentExpr,
-	BinaryExpr,
-	CallExpr,
-	EqualityExpr,
+	AssignmentExpression,
+	BinaryExpression,
+	CallExpression,
+	EqualityExpression,
 	Identifier,
-	MemberExpr,
+	MemberExpression,
 	ObjectLiteral,
 } from "../../frontend/ast.ts";
-import { TokenType } from "../../frontend/lexer.ts";
+import { typeOfToken } from "../../frontend/lexer.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
 import {
-BooleanVal,
+	BooleanValue,
 	FunctionValue,
-	MK_NULL,
+	makeNull,
 	NativeFnValue,
-	NullVal,
-	NumberVal,
-	ObjectVal,
+	NullValue,
+	NumberValue,
+	ObjectValue,
 	Runtime,
-StringVal,
+	StringValue,
 } from "../values.ts";
 
-function eval_numeric_binary_expr(
-	lhs: NumberVal,
-	rhs: NumberVal,
+function eval_numeric_binaryExpression(
+	lhs: NumberValue,
+	rhs: NumberValue,
 	operator: string
-): NumberVal {
+): NumberValue {
 	let result: number;
 	if (operator == "+") {
 		result = lhs.value + rhs.value;
@@ -45,10 +45,10 @@ function eval_numeric_binary_expr(
 }
 
 /**
- * Evaulates expressions following the binary operation type.
+ * Evaulates Expressionessions following the binary operation type.
  */
-export function eval_binary_expr(
-	binop: BinaryExpr,
+export function eval_binaryExpression(
+	binop: BinaryExpression,
 	env: Environment
 ): Runtime {
 	const lhs = evaluate(binop.left, env);
@@ -57,21 +57,21 @@ export function eval_binary_expr(
 	// Only currently support numeric operations
 	if((lhs.type !== null && lhs.type !== undefined) && (rhs.type !== null && rhs.type !== undefined)){
 	if (lhs.type == "number" && rhs.type == "number") {
-		return eval_numeric_binary_expr(
-			lhs as NumberVal,
-			rhs as NumberVal,
+		return eval_numeric_binaryExpression(
+			lhs as NumberValue,
+			rhs as NumberValue,
 			binop.operator
 		);
 	}
 	if(lhs.type == "string" && rhs.type == "string"){
-		return eval_string_binary_expr(
-			lhs as StringVal,
-			rhs as StringVal,
+		return eval_string_binaryExpression(
+			lhs as StringValue,
+			rhs as StringValue,
 			binop.operator
 		)
 	}
 } else {
-	return eval_string_binary_expr(
+	return eval_string_binaryExpression(
 		lhs,
 		rhs,
 		binop.operator
@@ -79,7 +79,7 @@ export function eval_binary_expr(
 }
 
 	// One or both are NULL
-	return MK_NULL();
+	return makeNull();
 }
 
 export function eval_identifier(
@@ -91,22 +91,22 @@ export function eval_identifier(
 }
 
 export function eval_assignment(
-	node: AssignmentExpr,
+	node: AssignmentExpression,
 	env: Environment
 ): Runtime {
 	if (node.assigne.kind !== "Identifier") {
-		throw `Invalid LHS inaide assignment expr ${JSON.stringify(node.assigne)}`;
+		throw `Invalid LHS inaide assignment Expression ${JSON.stringify(node.assigne)}`;
 	}
 
 	const varname = (node.assigne as Identifier).symbol;
 	return env.assignVar(varname, evaluate(node.value, env));
 }
 
-export function eval_object_expr(
+export function eval_objectExpression(
 	obj: ObjectLiteral,
 	env: Environment
 ): Runtime {
-	const object = { type: "object", properties: new Map() } as ObjectVal;
+	const object = { type: "object", properties: new Map() } as ObjectValue;
 	for (const { key, value } of obj.properties) {
 		const Runtime =
 			value == undefined ? env.lookupVar(key) : evaluate(value, env);
@@ -117,12 +117,12 @@ export function eval_object_expr(
 	return object;
 }
 
-export function eval_call_expr(expr: CallExpr, env: Environment): Runtime {
-	const args = expr.args.map((arg) => evaluate(arg, env));
-	const fn = evaluate(expr.caller, env);
+export function eval_callExpression(Expression: CallExpression, env: Environment): Runtime {
+	const args = Expression.args.map((arg) => evaluate(arg, env));
+	const fn = evaluate(Expression.caller, env);
 
 	if (fn.type == "native-fn") {
-		const result: StringVal | Runtime = (fn as NativeFnValue).call(args, env);
+		const result: StringValue | Runtime = (fn as NativeFnValue).call(args, env);
 		return result;
 	}
 
@@ -138,9 +138,9 @@ export function eval_call_expr(expr: CallExpr, env: Environment): Runtime {
 			scope.declareVar(varname, args[i], false);
 		}
 
-		let result: Runtime = MK_NULL();
-		for (const stmt of func.body) {
-			result = evaluate(stmt, scope);
+		let result: Runtime = makeNull();
+		for (const Statement of func.body) {
+			result = evaluate(Statement, scope);
 		}
 
 		return result;
@@ -149,7 +149,7 @@ export function eval_call_expr(expr: CallExpr, env: Environment): Runtime {
 	throw "Cannot call value that is not a function: " + JSON.stringify(fn);
 }
 
-export function eval_string_binary_expr(leftHandSide: StringVal, rightHandSide: StringVal, operator: string): StringVal {
+export function eval_string_binaryExpression(leftHandSide: StringValue, rightHandSide: StringValue, operator: string): StringValue {
     let result: string
 	let lhs = leftHandSide.value;
 	let rhs = rightHandSide.value;
@@ -161,36 +161,36 @@ export function eval_string_binary_expr(leftHandSide: StringVal, rightHandSide: 
 
     if (operator == '+') result = `${lhs.replace("\\n", "\n")}` + `${rhs.replace("\\n", "\n")}`
     else {
-        console.log(`Cannot use operator "${operator}" in string binary expression.`);
+        console.log(`Cannot use operator "${operator}" in string binary Expressionession.`);
         Deno.exit(1);
     }
 
     return { value: result, type: 'string' };
 }
 
-export function evaluateBinaryExpression (binop: BinaryExpr, env: Environment): Runtime {
+export function evaluateBinaryExpressionession (binop: BinaryExpression, env: Environment): Runtime {
     const leftHandSide = evaluate(binop.left, env)
     const rightHandSide = evaluate(binop.right, env)
 	console.log({leftHandSide, rightHandSide})
 
     if (leftHandSide.type == 'number' && rightHandSide.type == 'number') {
 		console.log("isanum")
-        return eval_numeric_binary_expr(leftHandSide as NumberVal, rightHandSide as NumberVal, binop.operator);
+        return eval_numeric_binaryExpression(leftHandSide as NumberValue, rightHandSide as NumberValue, binop.operator);
     } else if (leftHandSide.type == 'string' && rightHandSide.type == 'string') {
 		console.log("isastr")
-        return eval_string_binary_expr(leftHandSide as StringVal, rightHandSide as StringVal, binop.operator);
+        return eval_string_binaryExpression(leftHandSide as StringValue, rightHandSide as StringValue, binop.operator);
     }
 
     // One or both are NULL
-    return { type: 'null', value: null } as NullVal;
+    return { type: 'null', value: null } as NullValue;
 }
 
-export function eval_member_expr(expression: MemberExpr, env: Environment): Runtime {
-    const object = evaluate(expression.object, env)
-    const property = (expression.property as Identifier).symbol
+export function eval_memberExpression(Expressionession: MemberExpression, env: Environment): Runtime {
+    const object = evaluate(Expressionession.object, env)
+    const property = (Expressionession.property as Identifier).symbol
   
     if (object.type === 'object') {
-        const objValue = object as ObjectVal
+        const objValue = object as ObjectValue
         const propertyValue = objValue.properties.get(property)
         
         if (propertyValue !== undefined) {
@@ -203,10 +203,10 @@ export function eval_member_expr(expression: MemberExpr, env: Environment): Runt
     }
 }
 
-export function eval_equality_expr(expression: EqualityExpr, env: Environment): Runtime {
-    const left = evaluate(expression.left, env)
-    const right = evaluate(expression.right, env)
-    const operator = expression.operator
+export function eval_equalityExpression(Expressionession: EqualityExpression, env: Environment): Runtime {
+    const left = evaluate(Expressionession.left, env)
+    const right = evaluate(Expressionession.right, env)
+    const operator = Expressionession.operator
 
     if (isTruthy(left, operator, right)) {
 
@@ -216,14 +216,14 @@ export function eval_equality_expr(expression: EqualityExpr, env: Environment): 
     }
 }
 
-function isTruthy(left: Runtime, operator: TokenType, right: Runtime): boolean {
+function isTruthy(left: Runtime, operator: typeOfToken, right: Runtime): boolean {
     switch (operator) {
-        case TokenType.DoubleEquals:{
-            if ((left as BooleanVal).value == (right as BooleanVal).value || (left as StringVal).value == (right as unknown) as string) return true
+        case typeOfToken.DoubleEquals:{
+            if ((left as BooleanValue).value == (right as BooleanValue).value || (left as StringValue).value == (right as unknown) as string) return true
             else return false
 		}
-        case TokenType.NotEquals:
-            if ((left as BooleanVal).value != (right as BooleanVal).value) return true
+        case typeOfToken.NotEquals:
+            if ((left as BooleanValue).value != (right as BooleanValue).value) return true
             else return false
 		default:
 			return false;

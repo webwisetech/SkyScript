@@ -1,130 +1,130 @@
 // deno-lint-ignore-file no-empty-interface
 
-import { TokenType } from "./lexer.ts";
+import { typeOfToken } from "./lexer.ts";
 
 export type NodeType =
     // statements
 	| "Program"
 	| "VarDeclaration"
 	| "Property"
-	| "IfStmt"
-	| "WhileStmt"
+	| "IfStatement"
+	| "WhileStatement"
 	| "Identifier"
 	| "FunctionDeclaration"
-	// expressions
-	| "EqualityExpr"
-	| "BinaryExpr"
-	| "AssignmentExpr"
-	| "MemberExpr"
-	| "CallExpr"
+	// Expressionessions
+	| "EqualityExpression"
+	| "BinaryExpression"
+	| "AssignmentExpression"
+	| "MemberExpression"
+	| "CallExpression"
 	// literals
 	| "ObjectLiteral"
 	| "ArrayLiteral"
 	| "NumericLiteral"
 	| "StringLiteral";
 
-export interface Stmt {
+export interface Statement {
 	kind: NodeType;
 }
 
-export interface Program extends Stmt {
+export interface Program extends Statement {
 	kind: "Program";
-	body: Stmt[];
+	body: Statement[];
 }
 
-export interface VarDeclaration extends Stmt {
+export interface VarDeclaration extends Statement {
 	kind: "VarDeclaration";
 	constant: boolean;
 	identifier: string;
-	value?: Expr;
+	value?: Expression;
 }
 
-export interface FunctionDeclaration extends Stmt {
+export interface FunctionDeclaration extends Statement {
 	kind: "FunctionDeclaration";
 	parameters: string[];
 	name: string;
-	body: Stmt[];
+	body: Statement[];
 }
 
-export interface IfStmt extends Stmt {
-    kind: 'IfStmt';
-    conditional: Expr;
-    operator: TokenType;
-    consequent: Stmt[];
-    alternate?: Stmt[];
+export interface IfStatement extends Statement {
+    kind: 'IfStatement';
+    conditional: Expression;
+    operator: typeOfToken;
+    consequent: Statement[];
+    alternate?: Statement[];
 }
 
-export interface WhileStmt extends Stmt {
-	kind: "WhileStmt";
-	conditional: Expr;
-    operator: TokenType;
-    consequent: Stmt[];
-    alternate?: Stmt[];
-	Function: CallExpr;
+export interface WhileStatement extends Statement {
+	kind: "WhileStatement";
+	conditional: Expression;
+    operator: typeOfToken;
+    consequent: Statement[];
+    alternate?: Statement[];
+	Function: CallExpression;
 }
 
-export interface Expr extends Stmt {}
+export interface Expression extends Statement {}
 
-export interface AssignmentExpr extends Expr {
-	kind: "AssignmentExpr";
-	assigne: Expr;
-	value: Expr;
+export interface AssignmentExpression extends Expression {
+	kind: "AssignmentExpression";
+	assigne: Expression;
+	value: Expression;
 }
 
-export interface BinaryExpr extends Expr {
-	kind: "BinaryExpr";
-	left: Expr;
-	right: Expr;
+export interface BinaryExpression extends Expression {
+	kind: "BinaryExpression";
+	left: Expression;
+	right: Expression;
 	operator: string;
 }
 
-export interface CallExpr extends Expr {
-	kind: "CallExpr";
-	args: Expr[];
-	caller: Expr;
+export interface CallExpression extends Expression {
+	kind: "CallExpression";
+	args: Expression[];
+	caller: Expression;
 }
 
-export interface MemberExpr extends Expr {
-	kind: "MemberExpr";
-	object: Expr;
-	property: Expr;
+export interface MemberExpression extends Expression {
+	kind: "MemberExpression";
+	object: Expression;
+	property: Expression;
 	computed: boolean;
 }
 
-export interface Identifier extends Expr {
+export interface Identifier extends Expression {
 	kind: "Identifier";
 	symbol: string;
 }
 
-export interface NumericLiteral extends Expr {
+export interface NumericLiteral extends Expression {
 	kind: "NumericLiteral";
 	value: number;
 }
 
-export interface Property extends Expr {
+export interface Property extends Expression {
 	kind: "Property";
 	key: string;
-	value?: Expr;
+	value?: Expression;
 }
 
-export interface ObjectLiteral extends Expr {
+export interface ObjectLiteral extends Expression {
 	kind: "ObjectLiteral";
 	properties: Property[];
 }
 
-export interface ArrayLiteral extends Expr {
+export interface ArrayLiteral extends Expression {
 	kind: "ArrayLiteral";
-	elements: Expr[];
+	elements: Expression[];
 }
 
-export interface StringLiteral extends Expr {
+export interface StringLiteral extends Expression {
     kind: 'StringLiteral';
     value: string;
 }
 
-export interface EqualityExpr extends Expr {
-    kind: 'EqualityExpr';
-    left: Expr;
-    right: Expr;
-    operator: TokenType;
+export interface EqualityExpression extends Expression {
+    kind: 'EqualityExpression';
+    left: Expression;
+    right: Expression;
+    operator: typeOfToken;
 }
