@@ -6,6 +6,7 @@ export type NodeType =
 	| "Program"
 	| "VarDeclaration"
 	| "Property"
+	| "Element"
 	| "IfStatement"
 	| "WhileStatement"
 	| "Identifier"
@@ -111,7 +112,13 @@ export interface ObjectLiteral extends Expression {
 
 export interface ArrayLiteral extends Expression {
 	kind: "ArrayLiteral";
-	elements: Expression[];
+	elements: ArrayElement[];
+}
+
+export interface ArrayElement extends Expression {
+	kind: "Element";
+	index: number;
+	value: Expression;
 }
 
 export interface StringLiteral extends Expression {

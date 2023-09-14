@@ -19,6 +19,8 @@ import {
 StringLiteral,
 IfStatement,
 EqualityExpression,
+ArrayLiteral,
+ArrayElement,
 } from "./ast.ts";
 
 import { Token, setupTokens, typeOfToken } from "./lexer.ts";
@@ -200,11 +202,11 @@ export default class Parser {
 		return fn;
 	}
 
-	parseVariables(): Statement {
+	private parseVariables(): Statement {
 		const isConstant = this.nextToken().type == typeOfToken.Lock;
 		const identifier = this.ensureToken(
 			typeOfToken.Identifier,
-			"Expected identifier name following let | const keywords."
+			"Expected identifier name following set/lock keywords."
 		).value;
 
 		if (this.currentToken().type == typeOfToken.Semicolon) {
@@ -237,19 +239,55 @@ export default class Parser {
 
 	
 	private parseExpression(): Expression {
-		return this.parse_assignment_Expression();
+		return this.parseAssignment();
 	}
 
-	private parse_assignment_Expression(): Expression {
-		const left = this.parseObjects();
+	private parseAssignment(): Expression {
+		const left = this.parseArrays();
 
 		if (this.currentToken().type == typeOfToken.Equals) {
 			this.nextToken(); 
-			const value = this.parse_assignment_Expression();
+			const value = this.parseAssignment();
 			return { value, assigne: left, kind: "AssignmentExpression" } as AssignmentExpression;
 		}
 
 		return left;
+	}
+
+	private parseArrays(): Expression {
+		const nex = this.currentToken();
+		if(nex.type !== typeOfToken.OpenBracket){
+			return this.parseObjects();
+		}
+		this.nextToken();
+		let num = -1;
+		const arr = [] as Expression[];
+		
+		while(this.isNotEOF() && this.currentToken().type != typeOfToken.CloseBracket){
+			const key = this.parseExpression();
+			num++;			
+			if (this.currentToken().type == typeOfToken.Comma) {
+				this.nextToken(); 
+				arr.push({ value: key, index: num, kind: "Element" } as ArrayElement);
+				continue;
+			} 
+			else if (this.currentToken().type === typeOfToken.CloseBracket) {
+				arr.push({ value: key, index: num, kind: "Element" } as ArrayElement);
+				continue;
+			}
+
+			if (this.currentToken().type != typeOfToken.CloseBracket) {
+				this.ensureToken(
+					typeOfToken.Comma,
+					"Expected comma or closing bracket following element"
+				);
+			}
+		}
+		this.ensureToken(
+			typeOfToken.CloseBracket,
+			"Expected Closing bracket"
+		)
+		return { kind: "ArrayLiteral", elements: arr as ArrayElement[] } as ArrayLiteral;
 	}
 
 	private parseObjects(): Expression {
@@ -372,10 +410,10 @@ export default class Parser {
 	}
 
 	private parse_arguments_list(): Expression[] {
-		const args = [this.parse_assignment_Expression()];
+		const args = [this.parseAssignment()];
 
 		while (this.currentToken().type == typeOfToken.Comma && this.nextToken()) {
-			args.push(this.parse_assignment_Expression());
+			args.push(this.parseAssignment());
 		}
 
 		return args;
@@ -432,7 +470,6 @@ export default class Parser {
 					kind: "NumericLiteral",
 					value: parseFloat(this.nextToken().value),
 				} as NumericLiteral;
-
 			case typeOfToken.String:
 				return { kind: 'StringLiteral', value: this.nextToken().value } as StringLiteral;
 			case typeOfToken.OpenParen: {
@@ -456,7 +493,7 @@ export default class Parser {
 			}
 
 			default:
-				throw new SkyScriptErr("No Token found while parsing.");
+				throw new SkyScriptErr("Unknown Token found while parsing." + JSON.stringify(this.currentToken()));
 		}
 	}
 }

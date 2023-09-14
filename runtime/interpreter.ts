@@ -1,5 +1,6 @@
 import { NumberValue } from "./values.ts";
 import {
+ArrayLiteral,
 	AssignmentExpression,
 	BinaryExpression,
 	CallExpression,
@@ -30,6 +31,7 @@ import {
 	evaluateIdentifier,
 	eval_memberExpression,
 	evaluateObjectExpression,
+evaluateArrays,
 } from "./eval/expressions.ts";
 // deno-lint-ignore no-explicit-any
 export function evaluate(astNode: Statement, env: Environment): any {
@@ -39,6 +41,8 @@ export function evaluate(astNode: Statement, env: Environment): any {
 				value: (astNode as NumericLiteral).value,
 				type: "number",
 			} as NumberValue;
+		case "ArrayLiteral":
+			return evaluateArrays(astNode as ArrayLiteral, env)
 		case 'StringLiteral':
 			return (astNode as StringLiteral).value;
 		case "Identifier":

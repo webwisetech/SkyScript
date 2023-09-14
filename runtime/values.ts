@@ -1,5 +1,6 @@
 import Environment from "./environment.ts";
 import { Statement } from "../syntax/ast.ts";
+import { EmbedBuilder } from "npm:discord.js";
 export type ValueType =
 	| "null"
 	| "number"
@@ -10,6 +11,7 @@ export type ValueType =
 	| "native-fn"
 	| "function"
 	| "while"
+	| "component"
 	| "command";
 
 // deno-lint-ignore no-empty-interface
@@ -42,7 +44,7 @@ export interface NumberValue extends Runtime {
 	value: number;
 }
 
-export function MK_NUMBER(n = 0) {
+export function MakeNum(n = 0) {
 	return { type: "number", value: n } as NumberValue;
 }
 export interface ObjectValue extends Runtime {
@@ -65,7 +67,7 @@ export interface NativeFnValue extends Runtime {
 	type: "native-fn";
 	call: FunctionCall;
 }
-export function MK_NATIVE_FN(call: FunctionCall) {
+export function MakeNativeFunc(call: FunctionCall) {
 	return { type: "native-fn", call } as NativeFnValue;
 }
 
@@ -86,4 +88,10 @@ export interface DiscordBotCommand extends Runtime {
 export interface ArrayValue extends Runtime {
 	type: "array";
 	elements: Runtime[];
+}
+
+export interface DiscordEmbed extends Runtime {
+	type: "component";
+	prototype: string;
+	body: EmbedBuilder;
 }

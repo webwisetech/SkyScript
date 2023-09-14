@@ -1,7 +1,8 @@
 // deno-lint-ignore-file no-explicit-any
-import { run } from "../../main.ts";
+import { __dirname } from "../../main.ts";
+import simple from './functions/simple/index.ts';
 import Environment from "../environment.ts";
-import { Runtime, MK_NUMBER, NullValue, NumberValue, BooleanValue, StringValue, ObjectValue,MK_NATIVE_FN, makeNull, FunctionValue } from "../values.ts";
+import { Runtime, NullValue, NumberValue, BooleanValue, StringValue, ObjectValue,MakeNativeFunc, makeNull, FunctionValue } from "../values.ts";
 import * as util from 'node:util'; 
 import { execSync } from 'https://deno.land/std@0.177.1/node/child_process.ts';
 import colors from 'npm:colors';
@@ -9,57 +10,6 @@ import { evaluate } from "../interpreter.ts";
 import { Client, Message, Role } from 'npm:discord.js';
 import { memory } from '../localDB/memory.ts';
 import { Statement } from "../../syntax/ast.ts";
-
-function timeFunction(_args: Runtime[], _env: Environment) {
-    return MK_NUMBER(Date.now());
-}
-
-function YellowCat98(){
-    console.log("YellowCat98");
-    return makeNull();
-}
-function nebula(){
-    console.log("nebula");
-    return makeNull(); 
-}
-function nnei(args: Runtime[], _scope: Environment){
-    if(args[0] == undefined) throw "The nnei() Function requires input"
-    console.log(eval((args[0] as StringValue).value))
-    return makeNull(); 
-}
-function pikala(){
-    console.log("pikala");
-    return makeNull();
-}
-function exec(args: Runtime[], _scope: Environment){
-    // deno-lint-ignore no-inferrable-types
-    let file: string = "error";
-    for(const arg of args){
-        switch(arg.type){
-            case "string":
-                file = (arg as StringValue).value
-                continue;
-        }
-    }
-    run(file);
-
-    return makeNull();
-}
-
-function exit(args: Runtime[], _scope: Environment) {
-    if (args[0] == undefined || args[0].type != 'number') {
-        console.log(`Process exited with exit code: 1`)
-        Deno.exit(1)
-    } else if ((args[0] as NumberValue).value == 0) {
-        console.log(`Process exited with exit code: 0`)
-        Deno.exit(0)
-    } else {
-        console.log(`Process exited with exit code: 1`)
-        Deno.exit(1)
-    }
-
-    return makeNull();
-}
 
 function blue(args: Runtime[], _scope: Environment){
     const a = colors.blue((args[0] as unknown) as string)
@@ -109,16 +59,16 @@ export function println(this: any, args: Runtime[], scope: Environment){
         switch (arg.type) {
             case 'number':
                 log.push(((arg as NumberValue).value))
-                continue
+            continue
             case 'string':
                 log.push((arg as StringValue).value)
-                continue
+            continue
             case 'boolean':
                 log.push(((arg as BooleanValue).value))
-                continue
+            continue
             case 'null':
                 log.push(((arg as NullValue).value))
-                continue
+            continue
             default:
                 log.push(arg)
         }
@@ -266,9 +216,9 @@ function setupMsgFunc(func: Statement[], scope: Environment, message: Message<tr
         .set("content", { type: 'string', value: message.content } as StringValue)
         .set("mentions", {
             type: 'object',
-            properties: new Map<string, Runtime>().set("roles", MK_NATIVE_FN(mentions_role))
+            properties: new Map<string, Runtime>().set("roles", MakeNativeFunc(mentions_role))
         } as ObjectValue)
-        .set("send", MK_NATIVE_FN(sendMessage))
+        .set("send", MakeNativeFunc(sendMessage))
     } as ObjectValue, true);
     env.declareVar("author", {
         type: 'object',
@@ -276,7 +226,7 @@ function setupMsgFunc(func: Statement[], scope: Environment, message: Message<tr
         .set("username", { type: 'string', value: message.author.username } as StringValue)
         .set("globalname", { type: 'string', value: message.author.globalName } as StringValue)
         .set("id", { type: 'string', value: message.author.id } as StringValue)
-        .set("dm", MK_NATIVE_FN(sendDM))
+        .set("dm", MakeNativeFunc(sendDM))
     } as ObjectValue, true);
 
 	let result: Runtime = makeNull();
@@ -302,35 +252,28 @@ function whenReady(args: Runtime[], scope: Environment){
     return makeNull();
 }
 const map = new Map<string, Runtime>();
-map.set("out", MK_NATIVE_FN(print))
+map.set("out", MakeNativeFunc(print))
 const map1 = new Map<string, Runtime>();
-map1.set("ready", MK_NATIVE_FN(whenReady));
-map1.set("init", MK_NATIVE_FN(initready));
-map1.set("message", MK_NATIVE_FN(whenMessageCreate));
+map1.set("ready", MakeNativeFunc(whenReady));
+map1.set("init", MakeNativeFunc(initready));
+map1.set("message", MakeNativeFunc(whenMessageCreate));
 
 export function stdfun(env: Environment){
     
-	env.declareVar("out", MK_NATIVE_FN(println), true);
-	env.declareVar("time", MK_NATIVE_FN(timeFunction), true);
-	env.declareVar("exit", MK_NATIVE_FN(exit), true);
-    env.declareVar("run", MK_NATIVE_FN(exec), true);
-    env.declareVar("wait", MK_NATIVE_FN(wait), true);
-    env.declareVar("ask", MK_NATIVE_FN(ask), true);
-    env.declareVar("mode", MK_NATIVE_FN(envMode), true);
-    env.declareVar("loop", MK_NATIVE_FN(loop), true);
+    simple(env)
+	env.declareVar("out", MakeNativeFunc(println), true);
+    env.declareVar("wait", MakeNativeFunc(wait), true);
+    env.declareVar("ask", MakeNativeFunc(ask), true);
+    env.declareVar("mode", MakeNativeFunc(envMode), true);
+    env.declareVar("loop", MakeNativeFunc(loop), true);
     
-    env.declareVar("blue", MK_NATIVE_FN(blue), true);
-    env.declareVar("green", MK_NATIVE_FN(green), true);
-    env.declareVar("red", MK_NATIVE_FN(red), true);
-    env.declareVar("yellow", MK_NATIVE_FN(yellow), true);
-    env.declareVar("cyan", MK_NATIVE_FN(cyan), true);
-    env.declareVar("magenta", MK_NATIVE_FN(magenta), true);
-    
-    env.declareVar("nnei", MK_NATIVE_FN(nnei), true);
-    env.declareVar("YellowCat98", MK_NATIVE_FN(YellowCat98), true);
-    env.declareVar("nebula", MK_NATIVE_FN(nebula), true);
-    env.declareVar("pikala", MK_NATIVE_FN(pikala), true);
-    env.declareVar("bot", MK_NATIVE_FN(CreateBot), true);
+    env.declareVar("blue", MakeNativeFunc(blue), true);
+    env.declareVar("green", MakeNativeFunc(green), true);
+    env.declareVar("red", MakeNativeFunc(red), true);
+    env.declareVar("yellow", MakeNativeFunc(yellow), true);
+    env.declareVar("cyan", MakeNativeFunc(cyan), true);
+    env.declareVar("magenta", MakeNativeFunc(magenta), true);
+    env.declareVar("bot", MakeNativeFunc(CreateBot), true);
     env.declareVar("events", {
         type: 'object',
         properties: map1 
