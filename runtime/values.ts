@@ -1,6 +1,5 @@
 import Environment from "./environment.ts";
 import { Statement } from "../syntax/ast.ts";
-import { EmbedBuilder } from "npm:discord.js";
 export type ValueType =
 	| "null"
 	| "number"
@@ -57,7 +56,7 @@ export interface StringValue extends Runtime {
     value: string
 }
 
-export function MK_STR(str: string){
+export function MakeString(str: string){
 	return { type: "string", value: str } as StringValue;
 }
 
@@ -90,8 +89,21 @@ export interface ArrayValue extends Runtime {
 	elements: Runtime[];
 }
 
-export interface DiscordEmbed extends Runtime {
+type componentType = 'embed' | 'button' | 'menu';
+
+export interface DiscordComponent extends Runtime {
 	type: "component";
-	prototype: string;
-	body: EmbedBuilder;
+	prototype: componentType;
+} 
+
+export interface DiscordEmbed extends DiscordComponent {
+	type: "component";
+	prototype: "embed";
+	body: Record<string, string>;
+}
+
+export interface DiscordButton extends DiscordComponent {
+	type: "component";
+	prototype: "button";
+	body: Record<string, string>;
 }
