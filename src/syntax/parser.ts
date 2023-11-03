@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any prefer-const
-import { memory } from "../runtime/localDB/memory.ts";
-import { SkyScriptErr } from "../src/util/error.ts";
-import { SkyScriptWarn } from "../src/util/warn.ts";
+import { memory } from "../db/memory.js";
+import { SkyScriptErr } from "../util/error.js";
+import { SkyScriptWarn } from "../util/warn.js";
 import {
 	AssignmentExpression,
 	BinaryExpression,
@@ -21,9 +21,9 @@ IfStatement,
 EqualityExpression,
 ArrayLiteral,
 ArrayElement,
-} from "./ast.ts";
+} from "./ast.js";
 
-import { Token, setupTokens, typeOfToken } from "./lexer.ts";
+import { Token, setupTokens, typeOfToken } from "./lexer.js";
 
 export default class Parser {
 	private tokens: Token[] = [];
@@ -44,8 +44,7 @@ export default class Parser {
 	private ensureToken(type: typeOfToken, err: any) {
 		const prev = this.tokens.shift() as Token;
 		if (!prev || prev.type != type) {
-			console.error("Parser Error:\n", err, prev, " - Expecting: ", type);
-			Deno.exit(1);
+			new SkyScriptErr("Parser Error:\n"+ err +" " +prev + "\n - Expecting: "+ type);
 		}
 
 		return prev;

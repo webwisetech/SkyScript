@@ -2,7 +2,7 @@ import Parser from './syntax/parser.ts';
 import { createGlobalEnv } from './runtime/environment.ts';
 import { evaluate } from './runtime/interpreter.ts';
 import _colors from 'npm:colors';
-import { SkyScriptWarn } from "./runtime/others/warn.ts";
+import { SkyScriptWarn } from "./src/util/warn.ts";
 
 const [file, ...args] = Deno.args;
 

@@ -1,4 +1,4 @@
-import { SkyScriptErr } from "../../../../others/error.ts";
+import { SkyScriptErr } from "../../../../../src/util/error.ts";
 import { makeNull } from "../../../../values.ts";
 
 export default function(){

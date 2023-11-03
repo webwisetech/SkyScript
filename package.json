@@ -1,19 +1,30 @@
 {
-  "name": "skyscript",
-  "version": "1.0.0",
+  "name": "skyskript",
+  "version": "1.1.0",
   "description": "- SkyScript is a small scripting language made by me to learn how to make interpeters\r # usage\r ## prequisties\r - deno\r ### windows\r - double click ss.bat to open the REPL.\r ### mac/linux/other\r - deno run -A main.ts\r # thanks\r - if you want to support me, please give my repos a star!",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "SkyOPG",
   "license": "ISC",
+  "type": "module",
   "devDependencies": {
-    "@types/node": "^20.4.1"
+    "@types/node": "^20.8.10"
   },
+  "bin": {
+    "ss": "dist/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SkyOPG/SkyScript.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SkyOPG/SkyScript/issues"
+  },
+  "homepage": "https://github.com/SkyOPG/SkyScript#readme",
   "dependencies": {
-    "better-sqlite3": "^8.6.0",
-    "discord.js": "^14.13.0"
+    "colors": "^1.4.0"
   }
 }
