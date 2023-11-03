@@ -1,13 +1,8 @@
 import Parser from './syntax/parser.ts';
 import { createGlobalEnv } from './runtime/environment.ts';
 import { evaluate } from './runtime/interpreter.ts';
-import * as nodepath from "https://deno.land/std@0.110.0/node/path/posix.ts";
-import * as denopath from "https://deno.land/std@0.188.0/path/mod.ts";
 import _colors from 'npm:colors';
 import { SkyScriptWarn } from "./runtime/others/warn.ts";
-
-const __filename = denopath.fromFileUrl(import.meta.url);
-export const __dirname = denopath.dirname(denopath.fromFileUrl(import.meta.url))
 
 const [file, ...args] = Deno.args;
 
