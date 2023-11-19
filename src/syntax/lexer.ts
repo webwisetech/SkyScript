@@ -1,4 +1,4 @@
-import { SkyScriptErr } from "../util/error";
+import { SkyScriptErr } from "../util/error.js";
 
 export enum typeOfToken {
 	Number,

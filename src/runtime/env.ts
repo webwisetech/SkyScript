@@ -63,4 +63,21 @@ export default class Environment {
 
 		return this.parent.resolve(varname);
 	}
+
+	public devLookup(varname: string): Runtime | undefined {
+		const env = this.devResolve(varname);
+		return env?.variables.get(varname);		
+	}
+
+	public devResolve(varname: string){
+		if (this.variables.has(varname)) {
+			return this;
+		}
+
+		if (this.parent == undefined) {
+			return undefined
+		}
+
+		return this.parent.devResolve(varname);
+	}
 }

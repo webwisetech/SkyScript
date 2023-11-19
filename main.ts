@@ -1,14 +1,15 @@
 import Parser from './syntax/parser.ts';
 import { createGlobalEnv } from './runtime/environment.ts';
 import { evaluate } from './runtime/interpreter.ts';
-import _colors from 'npm:colors';
+import _colors from 'colors';
+import fs from 'fs'; 
 import { SkyScriptWarn } from "./src/util/warn.ts";
 
-const [file, ...args] = Deno.args;
+const [node_exec, ss_path, file, ...args] = process.argv;
 
 if(file === "-v" || file === "--version"){
     console.log("Sky"+_colors.cyan("Script"), "is on version: 0.0.4-a");
-    Deno.exit(0);
+    process.exit(0);
 }
 
 if(file != undefined){
@@ -17,11 +18,15 @@ if(file != undefined){
     repl();
 }
 
-export async function run(path: string){
-    if(!file?.endsWith(".ss")) throw "file is not a .ss skyscript file";
+function readFile(input){
+    return fs.readFileSync(input).toString();
+}
+
+export function run(path: string){
+    if(!file.endsWith(".ss") || !file.endsWith(".☁") || !file.endsWith(".ssk")) throw "file is not a skyscript file (.ss, .☁, .ssk)";
     const parser = new Parser();
     const env = createGlobalEnv();
-    const input = await Deno.readTextFile(nodepath.join(__dirname, path));
+    const input = readFile(path);
     const program = parser.createAST(input);
     const result = evaluate(program, env);
     if(args[0] === "-d" || args[0] === "--debug")

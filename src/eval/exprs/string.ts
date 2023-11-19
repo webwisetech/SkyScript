@@ -1,5 +1,5 @@
-import { StringValue } from "../../runtime/val";
-import { SkyScriptErr } from "../../util/error";
+import { StringValue } from "../../runtime/val.js";
+import { SkyScriptErr } from "../../util/error.js";
 
 export function StringBinaryExpression(
     leftHandSide: StringValue, 

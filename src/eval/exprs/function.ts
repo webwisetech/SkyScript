@@ -1,7 +1,7 @@
-import { evaluate } from "../../runtime";
-import Environment from "../../runtime/env";
-import { Runtime, StringValue, NativeFnValue, FunctionValue, makeNull } from "../../runtime/val";
-import { CallExpression } from "../../syntax/ast";
+import Environment from "../../runtime/env.js";
+import { evaluate } from "../../runtime/index.js";
+import { Runtime, StringValue, NativeFnValue, FunctionValue, makeNull } from "../../runtime/val.js";
+import { CallExpression } from "../../syntax/ast.js";
 
 export function CallExpr(Expression: CallExpression, env: Environment): Runtime {
 	const args = Expression.args.map((arg) => evaluate(arg, env));

@@ -17,9 +17,9 @@ ArrayLiteral,
 	VarDeclaration,
 } from "../syntax/ast.js";
 import Environment from "./env.js";
-import * as eval from "../eval/index.js";
+import * as evalue from "../eval/index.js";
 import { SkyScriptErr } from "../util/error.js";
-// deno-lint-ignore no-explicit-any
+
 export function evaluate(astNode: Statement, env: Environment): any {
 	switch (astNode.kind) {
 		case "NumericLiteral":
@@ -28,32 +28,32 @@ export function evaluate(astNode: Statement, env: Environment): any {
 				type: "number",
 			} as NumberValue;
 		case "ArrayLiteral":
-			return eval.Arrays(astNode as ArrayLiteral, env)
+			return evalue.Arrays(astNode as ArrayLiteral, env)
 		case 'StringLiteral':
 			return (astNode as StringLiteral).value;
 		case "Identifier":
-			return eval.EIdentifier(astNode as Identifier, env);
+			return evalue.EIdentifier(astNode as Identifier, env);
 		case "ObjectLiteral":
-			return eval.ObjectExpression(astNode as ObjectLiteral, env);
+			return evalue.ObjectExpression(astNode as ObjectLiteral, env);
 		case "MemberExpression":
-			return eval.MemberExpr(astNode as MemberExpression, env);
+			return evalue.MemberExpr(astNode as MemberExpression, env);
 		case "CallExpression":
-			return eval.CallExpr(astNode as CallExpression, env);
+			return evalue.CallExpr(astNode as CallExpression, env);
 		case "AssignmentExpression":
-			return eval.Assignment(astNode as AssignmentExpression, env);
+			return evalue.Assignment(astNode as AssignmentExpression, env);
 		case "BinaryExpression":
-			return eval.BinaryExpression(astNode as BinaryExpression, env);
+			return evalue.BinaryExpression(astNode as BinaryExpression, env);
 		case 'EqualityExpression':
-			return eval.EqualityExpr(astNode as EqualityExpression, env);
+			return evalue.EqualityExpr(astNode as EqualityExpression, env);
 		case 'IfStatement':
-			return eval.IfStmt(astNode as IfStatement, env)	
+			return evalue.IfStmt(astNode as IfStatement, env)	
 		case "Program":
-			return eval.SProgram(astNode as Program, env);
+			return evalue.SProgram(astNode as Program, env);
 		
 		case "VarDeclaration":
-			return eval.VariableDeclaration(astNode as VarDeclaration, env);
+			return evalue.VariableDeclaration(astNode as VarDeclaration, env);
 		case "FunctionDeclaration":
-			return eval.FunDeclaration(astNode as FunctionDeclaration, env);
+			return evalue.FunDeclaration(astNode as FunctionDeclaration, env);
 		
 		default:
             new SkyScriptErr("This AST Node has not yet been setup for interpretation.\n"+astNode);

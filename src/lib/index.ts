@@ -1,14 +1,15 @@
 import Environment from "../runtime/env.js";
-import fs from 'fs/promises';
 import path from 'path';
+import { FunctionCall, MakeNativeFunc, Runtime, RuntimeValue, makeNull, MakeNum, MakeString } from "../runtime/val.js";
+import { SkyScriptWarn } from "../util/warn.js";
+import io from './io.js';
 
-async function executeFunctionInFile(folderPath, fileName, context) {
-  const filePath = new URL(fileName, import.meta.url).toString();
-  const fullPath = path.join(folderPath, filePath);
+async function runModule(folderPath = "ss_mods", fileName = "skyscript.js", context = {}) {
+  const fullPath = path.resolve(folderPath+"/"+fileName);
 
   try {
-    const module = await import(fullPath);
-    if (typeof module.default === 'function') {
+    const module = await import("file://"+fullPath);
+    if (typeof module.default === 'function'){
       module.default(context);
     } else {
       console.error(`The file ${fileName} does not export a function.`);
@@ -18,18 +19,49 @@ async function executeFunctionInFile(folderPath, fileName, context) {
   }
 }
 
-// Usage example:
-const ssModsFolder = '/path/to/ss_mods'; // Replace with the actual folder path
-const targetFileName = 'exact_file_name.js'; // Replace with the filename you're looking for
-const context = { tools: 'your_tools' }; // Pass any context you need
-
-executeFunctionInFile(ssModsFolder, targetFileName, context);
-
 export class Library {
+        env: Environment;
+        packs: string[];
+    
     constructor(
-        env: Environment,
         packages: string[]
     ){
+        this.env = new Environment();
+        this.packs = packages;
+    }
 
+    public async registerPacks(){
+      const opts = this;
+
+      const options = {
+        makeString: MakeString,
+        makeNull,
+        makeNumber: MakeNum,
+        library: opts
+      };
+
+      for(const pack of opts.packs){
+        switch(pack){
+          case "io":
+            io(options)
+          break;
+          case "math":
+          default:
+            await runModule("./ss_mods", pack+".js", options);
+        }
+      }
+    }
+
+    private createFunction(this: Library, name: string, callBack: (args: Runtime[], env: Environment) => RuntimeValue){
+        if(this.env.devLookup(name) === undefined){
+          this.env.declareVar(name, MakeNativeFunc(callBack as FunctionCall), true)
+        }
+          else
+            new SkyScriptWarn(`Can't create custom function with name '${name}' cause it already exists`);
+    }
+    private createVariable(this: Library, name: string, value: any, constant: boolean){
+        this.env.devLookup(name) === undefined 
+          ? this.env.declareVar(name, value, constant)
+          : new SkyScriptWarn(`Can't create custom variable with name '${name}' cause it already exists`);
     }
 }

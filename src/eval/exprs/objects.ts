@@ -1,7 +1,7 @@
-import { evaluate } from "../../runtime";
-import Environment from "../../runtime/env";
-import { Runtime, ObjectValue } from "../../runtime/val";
-import { ObjectLiteral } from "../../syntax/ast";
+import Environment from "../../runtime/env.js";
+import { evaluate } from "../../runtime/index.js";
+import { Runtime, ObjectValue } from "../../runtime/val.js";
+import { ObjectLiteral } from "../../syntax/ast.js";
 
 export function ObjectExpression(
 	obj: ObjectLiteral,

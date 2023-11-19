@@ -1,8 +1,8 @@
-import { evaluate } from "../../runtime";
-import Environment from "../../runtime/env";
-import { Runtime } from "../../runtime/val";
-import { AssignmentExpression, Identifier } from "../../syntax/ast";
-import { SkyScriptErr } from "../../util/error";
+import Environment from "../../runtime/env.js";
+import { evaluate } from "../../runtime/index.js";
+import { Runtime } from "../../runtime/val.js";
+import { AssignmentExpression, Identifier } from "../../syntax/ast.js";
+import { SkyScriptErr } from "../../util/error.js";
 
 export function Assignment(
 	node: AssignmentExpression,

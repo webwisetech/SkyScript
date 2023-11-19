@@ -1,6 +1,6 @@
-import Environment from "../../runtime/env";
-import { Runtime } from "../../runtime/val";
-import { Identifier } from "../../syntax/ast";
+import Environment from "../../runtime/env.js";
+import { Runtime } from "../../runtime/val.js";
+import { Identifier } from "../../syntax/ast.js";
 
 export function EIdentifier(
 	ident: Identifier,

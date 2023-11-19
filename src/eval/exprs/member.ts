@@ -1,8 +1,8 @@
-import { evaluate } from "../../runtime"
-import Environment from "../../runtime/env"
-import { Runtime, ObjectValue } from "../../runtime/val"
-import { MemberExpression, Identifier } from "../../syntax/ast"
-import { SkyScriptErr } from "../../util/error"
+import Environment from "../../runtime/env.js"
+import { evaluate } from "../../runtime/index.js"
+import { Runtime, ObjectValue } from "../../runtime/val.js"
+import { MemberExpression, Identifier } from "../../syntax/ast.js"
+import { SkyScriptErr } from "../../util/error.js"
 
 export function MemberExpr(Expression: MemberExpression, env: Environment): Runtime {
     const object = evaluate(Expression.object, env)
