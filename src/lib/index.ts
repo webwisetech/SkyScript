@@ -3,6 +3,7 @@ import path from 'path';
 import { FunctionCall, MakeNativeFunc, Runtime, RuntimeValue, makeNull, MakeNum, MakeString } from "../runtime/val.js";
 import { SkyScriptWarn } from "../util/warn.js";
 import io from './io.js';
+import process from "./process.js";
 
 async function runModule(folderPath = "ss_mods", fileName = "skyscript.js", context = {}) {
   const fullPath = path.resolve(folderPath+"/"+fileName);
@@ -43,7 +44,10 @@ export class Library {
       for(const pack of opts.packs){
         switch(pack){
           case "io":
-            io(options)
+            io(options);
+          break;
+          case "process":
+            process(options);
           break;
           case "math":
           default:

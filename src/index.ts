@@ -6,16 +6,21 @@ import _colors from 'colors';
 import fs from 'fs'; 
 import { SkyScriptWarn } from "./util/warn.js";
 import { Library } from './lib/index.js';
+import yml from 'yaml'
+import { SkyScriptErr } from './util/error.js';
 
 function readFile(input){
+    if(!fs.existsSync(input))
+    new SkyScriptErr("Can't open "+input);
     return fs.readFileSync(input).toString();
 }
 
-export async function run(path: string, debug?: boolean){
+export async function run(path: string ,debug?: boolean){
     const parser = new Parser();
-    const lib = new Library(["io", "math"]);
+    const json = yml.parse(readFile("ss.yml"));
+    const lib = new Library(json.packages);
     const env = lib.env;
-    await lib.registerPacks().then(o => {
+    await lib.registerPacks().then(() => {
         const input = readFile(path);
         const program = parser.createAST(input);
         const result = evaluate(program, env);

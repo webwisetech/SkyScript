@@ -5,22 +5,58 @@ import { run } from './index.js';
 
 const opts = process.argv;
 opts.shift();opts.shift();
-const [cmd, ...args] = opts;
-
-function parseArgs(){
-    for(const arg in args){
-        if(["-v", "--version"].includes(arg)){
-            console.log("SkyScript is on version: ")
-        }
+const args = opts;
+const cmd = args[0];
+function launchProfile(accessToken?){
+    const lines = {
+        homeScreen: [
+            "Welcome to SkyScript's Profile system!",
+            "",
+            "[1] Append access token",
+            "[2] Download package",
+            "[3] Post package",
+            "[4] Delete package"
+        ],
+        packages: [
+            "Package Chooser",
+            "",
+        ],
+        post: [
+            "Package Posting utility",
+            ""
+        ],
+        access: [
+            "Login - Access Token",
+            "",
+            "You need to specify both the mirror and "
+        ]
     }
 }
 
+async function parseArgs(){
+    const options = {
+        debug: false
+    };
+    args.forEach(arg => {
+        if(["-v", "--version"].includes(arg)){
+            console.log("SkyScript is on version: v1.1.0")
+            process.exit(0);
+        } else if(["-d", "--debug"].includes(arg)){
+            options["debug"] = true;
+        }
+    })
+    return options;
+}
+
 async function cli(){
-    switch(cmd){
-        default:
-                const file = cmd;
-                run(cmd)
-    }
+    await parseArgs().then(options => {
+        switch(cmd){
+            case "profile":
+                launchProfile();
+            default:
+                run(cmd, options["debug"])
+        }
+    });
 }
 
 cli()

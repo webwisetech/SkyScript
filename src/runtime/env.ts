@@ -1,5 +1,6 @@
 import { Runtime } from "./val.js";
 import { Library } from "../lib/index.js";
+import { SkyScriptErr } from "../util/error.js";
 
 export function createGlobalEnv(){
 	const env = new Environment();
@@ -58,7 +59,7 @@ export default class Environment {
 		}
 
 		if (this.parent == undefined) {
-			throw `Cannot resolve '${varname}' as it does not exist.`;
+			throw new SkyScriptErr(`Cannot resolve '${varname}' as it does not exist.`);
 		}
 
 		return this.parent.resolve(varname);

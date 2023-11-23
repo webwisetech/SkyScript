@@ -20,5 +20,5 @@ export function StringBinaryExpression(
         throw new SkyScriptErr(`Cannot use operator "${operator}" in string Expression.`);
     }
 
-    return { value: result, type: 'string' };
+    return { value: result, type: 'string' } as StringValue;
 }
