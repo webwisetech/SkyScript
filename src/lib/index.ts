@@ -1,11 +1,23 @@
 import Environment from "../runtime/env.js";
 import path from 'path';
-import { FunctionCall, MakeNativeFunc, Runtime, RuntimeValue, makeNull, MakeNum, MakeString } from "../runtime/val.js";
+import { 
+	FunctionCall, 
+	MakeNativeFunc, 
+	Runtime, 
+	RuntimeValue, 
+	makeNull, 
+	MakeNum, 
+	MakeString 
+} from "../runtime/val.js";
 import { SkyScriptWarn } from "../util/warn.js";
 import io from './io.js';
 import process from "./process.js";
 
-async function runModule(folderPath = "ss_mods", fileName = "skyscript.js", context = {}) {
+async function runModule(
+	folderPath = "ss_mods", 
+	fileName = "skyscript.js", 
+	context = {}
+) {
   const fullPath = path.resolve(folderPath+"/"+fileName);
 
   try {
@@ -56,16 +68,36 @@ export class Library {
       }
     }
 
-    private createFunction(this: Library, name: string, callBack: (args: Runtime[], env: Environment) => RuntimeValue){
+    private createFunction(
+	    this: Library, 
+	    name: string, 
+	    callBack: (
+		    args: Runtime[], 
+		    env: Environment
+	    ) => RuntimeValue
+    ){
         if(this.env.devLookup(name) === undefined){
-          this.env.declareVar(name, MakeNativeFunc(callBack as FunctionCall), true)
+          this.env.declareVar(
+		  name, 
+		  MakeNativeFunc(callBack as FunctionCall), 
+		  true
+	  )
         }
           else
-            new SkyScriptWarn(`Can't create custom function with name '${name}' cause it already exists`);
+            new SkyScriptWarn(
+		    `Can't create custom function with name '${name}'`
+		    	+` cause it already exists`);
     }
-    private createVariable(this: Library, name: string, value: any, constant: boolean){
+    private createVariable(
+	    this: Library,
+	    name: string, 
+	    value: any,
+	    constant: boolean
+    ){
         this.env.devLookup(name) === undefined 
           ? this.env.declareVar(name, value, constant)
-          : new SkyScriptWarn(`Can't create custom variable with name '${name}' cause it already exists`);
+          : new SkyScriptWarn(
+		  `Can't create custom variable with name '${name}'`
+		  	+` cause it already exists`);
     }
 }
