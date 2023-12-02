@@ -23,7 +23,7 @@ ArrayLiteral,
 ArrayElement,
 } from "./ast.js";
 
-import { Token, setupTokens, typeOfToken } from "./lexer.js";
+import { Token, typeOfToken } from "./lexer.js";
 
 export default class Parser {
 	private tokens: Token[] = [];
@@ -50,8 +50,8 @@ export default class Parser {
 		return prev;
 	}
 
-	public createAST(sourceCode: string): Program {
-		this.tokens = setupTokens(sourceCode);
+	public createAST(tokens: Token[]): Program {
+		this.tokens = tokens
 		const program: Program = {
 			kind: "Program",
 			body: [],

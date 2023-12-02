@@ -52,7 +52,7 @@ const KEYWORDS: Record<string, typeOfToken> = {
 	take: typeOfToken.Take, // not implemented - similar to "import" in typescript
 	from: typeOfToken.From, // not implemented - similar to "from" in typescript
 	give: typeOfToken.Give, // not implemented - similar to "export" in typescript
-	using: typeOfToken.Using // implemented
+	using: typeOfToken.Using // unimplemented
 };
 
 export interface Token {
@@ -60,209 +60,213 @@ export interface Token {
 	type: typeOfToken;
 }
 
-function tokenize(value = "", type: typeOfToken): Token {
-	return { value, type };
-}
+export class Lexer {
+	private src: string[] = [];
 
-function isAlphabetic(src: string) {
-	return src.toUpperCase() != src.toLowerCase();
-}
+	private tokenize(value = "", type: typeOfToken): Token {
+		return { value, type } as Token;
+	}
 
-function isSkippable(str: string) {
-	return str == " " || str == "\n" || str == "\t" || str == "\r" || str == ";" || str == "/";
-}
+	private isAlpha(src: string){
+		return src.toUpperCase() != src.toLowerCase();
+	}
 
-function isNumber(str: string) {
-	const c = str.charCodeAt(0);
-	const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)];
-	return c >= bounds[0] && c <= bounds[1];
-}
+	private isSkippable(str: string) {
+		return str == " " || str == "\n" || str == "\t" || str == "\r" || str == ";" || str == "/";
+	}
 
-export function setupTokens(sourceCode: string): Token[] {
-	const tokens = new Array<Token>();
-	const src = sourceCode.split("");
+	private isNumber(str: string) {
+		const c = str.charCodeAt(0);
+		const bounds = ["0".charCodeAt(0), "9".charCodeAt(0)];
+		return c >= bounds[0] && c <= bounds[1];
+	}
 
-	while (src.length > 0) {
-		let sc = src[0];
-	switch(src[0]){
-		case "(":
-			tokens.push(tokenize(src.shift(), typeOfToken.OpenParen));
-		break;
-		case ")":
-			tokens.push(tokenize(src.shift(), typeOfToken.CloseParen));
-		break;
-		case "{":
-			tokens.push(tokenize(src.shift(), typeOfToken.OpenBrace));
-		break;
-		case "}":
-			tokens.push(tokenize(src.shift(), typeOfToken.CloseBrace));
-		break;
-		case "[":
-			tokens.push(tokenize(src.shift(), typeOfToken.OpenBracket));
-		break;
-		case "]":
-			tokens.push(tokenize(src.shift(), typeOfToken.CloseBracket));
-		break;
-		case "+":
-			switch(src[1]){
+	public Tokenize(sourceCode: string): Token[] {
+		const tokens = new Array<Token>();
+		this.src = sourceCode.split("");
+
+		while(this.src.length > 0) {
+			let src = this.src[0];
+
+			switch(this.src[0]){
+				case "(":
+					tokens.push(this.tokenize(this.src.shift(), typeOfToken.OpenParen));
+				break;
+				case ")":
+					tokens.push(this.tokenize(this.src.shift(), typeOfToken.CloseParen));
+				break;
+				case "{":
+					tokens.push(this.tokenize(this.src.shift(), typeOfToken.OpenBrace));
+				break;
+				case "}":
+					tokens.push(this.tokenize(this.src.shift(), typeOfToken.CloseBrace));
+				break;
+				case "[":
+					tokens.push(this.tokenize(this.src.shift(), typeOfToken.OpenBracket));
+				break;
+				case "]":
+					tokens.push(this.tokenize(this.src.shift(), typeOfToken.CloseBracket));
+				break;
 				case "+":
-					src.shift();
-					tokens.push(tokenize(src.shift() + "+", typeOfToken.BinaryOperator));
+					switch(this.src[1]){
+						case "+":
+							this.src.shift();
+							tokens.push(this.tokenize(this.src.shift() + "+", typeOfToken.BinaryOperator));
+						break;
+						case "=":
+							tokens.push(this.tokenize(this.src.shift() + "=", typeOfToken.BinaryOperator));
+							this.src.shift();
+						break;
+						default:
+							tokens.push(this.tokenize(this.src.shift(), typeOfToken.BinaryOperator));
+						break;
+					} 
 				break;
-				case "=":
-					tokens.push(tokenize(src.shift() + "=", typeOfToken.BinaryOperator));
-					src.shift();
-				break;
-				default:
-					tokens.push(tokenize(src.shift(), typeOfToken.BinaryOperator));
-				break;
-			} 
-		break;
-		case "-":
-			switch(src[1]){
 				case "-":
-					src.shift();
-					tokens.push(tokenize(src.shift() + "-", typeOfToken.BinaryOperator));
+					switch(this.src[1]){
+						case "-":
+							this.src.shift();
+							tokens.push(this.tokenize(this.src.shift() + "-", typeOfToken.BinaryOperator));
+						break;
+						case "=":
+							tokens.push(this.tokenize(this.src.shift() + "=", typeOfToken.BinaryOperator));
+							this.src.shift();
+						break;
+						default: 
+							tokens.push(this.tokenize(this.src.shift(), typeOfToken.BinaryOperator));
+						break;
+					} 
 				break;
-				case "=":
-					tokens.push(tokenize(src.shift() + "=", typeOfToken.BinaryOperator));
-					src.shift();
-				break;
-				default: 
-					tokens.push(tokenize(src.shift(), typeOfToken.BinaryOperator));
-				break;
-			} 
-		break;
-		case "*":
-			switch(src[1]){
-				case "=":
-					tokens.push(tokenize(src.shift() + "=", typeOfToken.BinaryOperator));
-					src.shift();
-				break;
-				default:
-					tokens.push(tokenize(src.shift(), typeOfToken.BinaryOperator));
-				break;
-			}
-		break;
-		case "/":
-			switch(src[1]){
-				case "=":
-					tokens.push(tokenize(src.shift() + "=", typeOfToken.BinaryOperator));
-					src.shift();
+				case "*":
+					switch(this.src[1]){
+						case "=":
+							tokens.push(this.tokenize(this.src.shift() + "=", typeOfToken.BinaryOperator));
+							this.src.shift();
+						break;
+						default:
+							tokens.push(this.tokenize(this.src.shift(), typeOfToken.BinaryOperator));
+						break;
+					}
 				break;
 				case "/":
-					tokens.push(tokenize(src.shift()+'/', typeOfToken.Slash));
-					src.shift();
-				break;
-				default:
-					tokens.push(tokenize(src.shift(), typeOfToken.BinaryOperator));
-				break;
-			}
-		break;
-		case "%":
-			switch(src[1]){
-				case "=":
-					tokens.push(tokenize(src.shift() + "=", typeOfToken.BinaryOperator));
-					src.shift();
-				break;
-				default:
-					tokens.push(tokenize(src.shift(), typeOfToken.BinaryOperator));
-				break;
-			}
-		break;
-		case "=":
-			switch(src[1]){
-				case "=":
-					src.shift();
-					src.shift();
-					tokens.push(tokenize("==", typeOfToken.DoubleEquals));
-				break;
-				default:
-					tokens.push(tokenize(src.shift(), typeOfToken.Equals));
-				break;
-			}
-		break;
-		case "!":
-			switch(src[1]) {
-				case "=":
-					src.shift();
-                	src.shift();
-                	tokens.push(tokenize('!=', typeOfToken.NotEquals));
-				break;
-				default: break;
-            }
-		break;
-		case ";":
-			tokens.push(tokenize(src.shift(), typeOfToken.Semicolon));
-		break;
-		case ":":
-			tokens.push(tokenize(src.shift(), typeOfToken.Colon));
-		break;
-		case ",":
-			tokens.push(tokenize(src.shift(), typeOfToken.Comma));
-		break;
-		case ".":
-			tokens.push(tokenize(src.shift(), typeOfToken.Dot));
-		break;
-		case '"':
-		case "'":{
-				src.shift()
-            let string = ''
-
-            while (src.length > 1 && src[0] != '"') {
-                string += src.shift()
-            }
-
-            src.shift()
-            tokens.push(tokenize(string, typeOfToken.String))
-			} break;
-		case ">": {
-			switch(src[1]){
-				case ">":
-					while (src.length > 0 && sc != "\r" && sc != "\n") {
-						src.shift();
-						sc = src[0];
+					switch(this.src[1]){
+						case "=":
+							tokens.push(this.tokenize(this.src.shift() + "=", typeOfToken.BinaryOperator));
+							this.src.shift();
+						break;
+						case "/":
+							tokens.push(this.tokenize(this.src.shift()+'/', typeOfToken.Slash));
+							this.src.shift();
+						break;
+						default:
+							tokens.push(this.tokenize(this.src.shift(), typeOfToken.BinaryOperator));
+						break;
 					}
 				break;
-				default: break;
-			}
-		} break;
-		default: {
-			let a: string;
-			if (isNumber(src[0])) { a = "int"} else if (isAlphabetic(src[0])) { a = "alpha" } else if (isSkippable(src[0])) { a = "skippable"} else { a = "other" }
-			switch(a){
-				case "int": {
-					let num = "";
-					while (src.length > 0 && isNumber(src[0])) {
-						num += src.shift();
+				case "%":
+					switch(this.src[1]){
+						case "=":
+							tokens.push(this.tokenize(this.src.shift() + "=", typeOfToken.BinaryOperator));
+							this.src.shift();
+						break;
+						default:
+							tokens.push(this.tokenize(this.src.shift(), typeOfToken.BinaryOperator));
+						break;
 					}
-					tokens.push(tokenize(num, typeOfToken.Number));
-				} break;
-				case "alpha": {
-					let ident = "";
-				while (src.length > 0 && isAlphabetic(src[0]) || isNumber(src[0])) {
-					ident += src.shift();
-				}
-				const reserved = KEYWORDS[ident];
-				if (typeof reserved == "number") {
-					tokens.push(tokenize(ident, reserved));
-				} else {
-					tokens.push(tokenize(ident, typeOfToken.Identifier));
-				} 
-				} break;
-				case "skippable":
-					src.shift(); 
 				break;
-				default:
-					new SkyScriptErr(
-						"Unreconized character found in source: " +src[0].charCodeAt(0) +"\n"+src[0]
-					);
+				case "=":
+					switch(this.src[1]){
+						case "=":
+							this.src.shift();
+							this.src.shift();
+							tokens.push(this.tokenize("==", typeOfToken.DoubleEquals));
+						break;
+						default:
+							tokens.push(this.tokenize(this.src.shift(), typeOfToken.Equals));
+						break;
+					}
 				break;
+				case "!":
+					switch(this.src[1]) {
+						case "=":
+							this.src.shift();
+							this.src.shift();
+							tokens.push(this.tokenize('!=', typeOfToken.NotEquals));
+						break;
+						default: break;
+					}
+				break;
+				case ";":
+					tokens.push(this.tokenize(this.src.shift(), typeOfToken.Semicolon));
+				break;
+				case ":":
+					tokens.push(this.tokenize(this.src.shift(), typeOfToken.Colon));
+				break;
+				case ",":
+					tokens.push(this.tokenize(this.src.shift(), typeOfToken.Comma));
+				break;
+				case ".":
+					tokens.push(this.tokenize(this.src.shift(), typeOfToken.Dot));
+				break;
+				case '"': 
+				case "'":{
+						const thing = this.src.shift()
+					let string = ''
+		
+					while (this.src.length > 1 && this.src[0] != thing) {
+						string += this.src.shift()
+					}
+		
+					this.src.shift()
+					tokens.push(this.tokenize(string, typeOfToken.String))
+					} break;
+				default: {
+					let a: string;
+					if (this.isNumber(this.src[0])) {
+						a = "int"
+					} else if (this.isAlpha(this.src[0])) {
+						a = "alpha"
+					} else if (this.isSkippable(this.src[0])) {
+						a = "skippable"
+					} else { 
+						a = "other"
+					}
+					switch(a){
+						case "int": {
+							let num = "";
+							while (this.src.length > 0 && this.isNumber(this.src[0])) {
+								num += this.src.shift();
+							}
+							tokens.push(this.tokenize(num, typeOfToken.Number));
+						} break;
+						case "alpha": {
+							let ident = "";
+						while (this.src.length > 0 && this.isAlpha(this.src[0]) || this.isNumber(this.src[0])) {
+							ident += this.src.shift();
+						}
+						const reserved = KEYWORDS[ident];
+						if (typeof reserved == "number") {
+							tokens.push(this.tokenize(ident, reserved));
+						} else {
+							tokens.push(this.tokenize(ident, typeOfToken.Identifier));
+						} 
+						} break;
+						case "skippable":
+							this.src.shift(); 
+						break;
+						default:
+							new SkyScriptErr(
+								"Unreconized character found in source: " +this.src[0].charCodeAt(0) +"\n"+this.src[0]
+							);
+						break;
+					}
+				} break;
 			}
-		} break;
-	}
-	}
 
-	tokens.push({ type: typeOfToken.EOF, value: "EndOfFile" });
-	return tokens;
+		}
+
+		tokens.push({ type: typeOfToken.EOF, value: "EndOfFile" });
+
+		return tokens;
+	}
 }

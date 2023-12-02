@@ -4,7 +4,7 @@ import { question } from 'readline-sync';
 import { run } from "../index.js";
 import { execSync } from "node:child_process";
 
-export default ({ makeString, library, makeNull }) => {
+export default ({ library, makeNull }) => {
     library.createFunction("exit", (args, _scope) => {
         let exitCode: number;
 

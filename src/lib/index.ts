@@ -1,23 +1,26 @@
 import Environment from "../runtime/env.js";
 import path from 'path';
 import { 
-	FunctionCall, 
-	MakeNativeFunc, 
+	FunctionCall,
 	Runtime, 
 	RuntimeValue, 
 	makeNull, 
-	MakeNum, 
-	MakeString 
+	makeNum, 
+	makeStr,
+  makeBool,
+  makeArr,
+  makeObj,
+  makeNativeFn
 } from "../runtime/val.js";
 import { SkyScriptWarn } from "../util/warn.js";
+
+import colors from './colors.js';
+import math from './math.js';
+import time from './time.js';
 import io from './io.js';
 import process from "./process.js";
 
-async function runModule(
-	folderPath = "ss_mods", 
-	fileName = "skyscript.js", 
-	context = {}
-) {
+async function runModule(	folderPath = "ss_mods",	fileName = "skyscript.js", 	context = {}) {
   const fullPath = path.resolve(folderPath+"/"+fileName);
 
   try {
@@ -40,6 +43,11 @@ export class Library {
         packages: string[]
     ){
         this.env = new Environment();
+
+        this.env.declareVar("true", makeBool(true), true);
+      	this.env.declareVar("false", makeBool(false), true);
+      	this.env.declareVar("null", makeNull(), true);
+
         this.packs = packages;
     }
 
@@ -47,9 +55,11 @@ export class Library {
       const opts = this;
 
       const options = {
-        makeString: MakeString,
+        makeStr,
         makeNull,
-        makeNumber: MakeNum,
+        makeNum,
+        makeArr,
+
         library: opts
       };
 
@@ -62,6 +72,14 @@ export class Library {
             process(options);
           break;
           case "math":
+            math(options);
+          break;
+          case "colors":
+            colors(options);
+          break;
+          case "time":
+            time(options)
+          break;
           default:
             await runModule("./ss_mods", pack+".js", options);
         }
@@ -79,7 +97,7 @@ export class Library {
         if(this.env.devLookup(name) === undefined){
           this.env.declareVar(
 		  name, 
-		  MakeNativeFunc(callBack as FunctionCall), 
+		  makeNativeFn(callBack as FunctionCall), 
 		  true
 	  )
         }

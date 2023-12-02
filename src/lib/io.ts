@@ -12,7 +12,7 @@ import { execSync } from "node:child_process";
 import Environment from "../runtime/env.js";
 import { evaluate } from "../runtime/index.js";
 
-export default ({ makeString, library, makeNull }) => {
+export default ({ makeStr, library, makeNull }) => {
     library.createFunction("out", (args, _scope) => {
         const log: any[] = []
     
@@ -37,7 +37,7 @@ export default ({ makeString, library, makeNull }) => {
             const be42log = util.format.apply(this, log);
             console.log(be42log)
     
-        return makeString(be42log);
+        return makeStr(be42log);
     });
 
     library.createFunction("ask", (args, _scope) => {
@@ -53,7 +53,7 @@ export default ({ makeString, library, makeNull }) => {
             }
         }
 
-        return makeString(question(util.format.apply(this, log) || "> "));
+        return makeStr(question(util.format.apply(this, log) || "> "));
     });
 
     library.createFunction("wait", function(args, _scope){
